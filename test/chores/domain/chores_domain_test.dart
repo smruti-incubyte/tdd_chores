@@ -113,5 +113,7 @@ void main() {
         dateTime: DateTime(2024, 1, 1),
       ),
     ];
+
+    final useCase = GetGroupChores(repository: mockChoreRepository);
   });
 }
