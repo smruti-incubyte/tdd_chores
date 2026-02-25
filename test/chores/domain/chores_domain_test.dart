@@ -143,4 +143,23 @@ void main() {
     verify(mockChoreRepository.addGroupChore(tGroupChore));
     verifyNoMoreInteractions(mockChoreRepository);
   });
+
+  test('should update a group chore in repository', () async {
+    final tGroupChore = GroupChoreEntity(
+      id: '1',
+      chores: [
+        GroupChoreItem(id: '1', name: 'Test Chore 1', status: ChoreStatus.todo),
+      ],
+      dateTime: DateTime(2024, 1, 1),
+    );
+
+    when(
+      mockChoreRepository.updateGroupChore(tGroupChore),
+    ).thenAnswer((_) async => {});
+
+    final useCase = UpdateGroupChore(repository: mockChoreRepository);
+    await useCase(UpdateGroupChoreParams(groupChore: tGroupChore));
+    verify(mockChoreRepository.updateGroupChore(tGroupChore));
+    verifyNoMoreInteractions(mockChoreRepository);
+  });
 }
