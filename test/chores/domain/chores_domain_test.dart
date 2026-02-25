@@ -7,6 +7,7 @@ import 'package:tdd_chores/features/chores/domain/entities/single_chore.dart';
 import 'package:tdd_chores/features/chores/domain/repositories/repository.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/add_single_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/get_single_chore.dart';
+import 'package:tdd_chores/features/chores/domain/usecases/update_single_chore.dart';
 
 import 'chores_domain_test.mocks.dart';
 
@@ -60,5 +61,16 @@ void main() {
       mockChoreRepository.addSingleChore(AddSingleChoreParams(chore: tChore)),
     );
     verifyNoMoreInteractions(mockChoreRepository);
+  });
+
+  test('should update a single chore in repository', () async {
+    final tChore = SingleChoreEntity(
+      id: '1',
+      name: 'Updated Chore',
+      dateTime: DateTime(2024, 1, 1),
+      status: ChoreStatus.todo,
+    );
+
+    final useCase = UpdateSingleChore(repository: mockChoreRepository);
   });
 }
