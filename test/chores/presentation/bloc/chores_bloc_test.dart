@@ -19,6 +19,7 @@ void main() {
   setUp(() {
     mockChoreRepository = MockChoreRepository();
     choresBloc = ChoresBloc(
+      updateSingleChore: UpdateSingleChore(repository: mockChoreRepository),
       getSingleChores: GetSingleChores(repository: mockChoreRepository),
       addSingleChore: AddSingleChore(repository: mockChoreRepository),
     );
@@ -39,6 +40,7 @@ void main() {
           mockChoreRepository.getSingleChores(),
         ).thenAnswer((_) async => [tSingleChore]);
         return ChoresBloc(
+          updateSingleChore: UpdateSingleChore(repository: mockChoreRepository),
           getSingleChores: GetSingleChores(repository: mockChoreRepository),
           addSingleChore: AddSingleChore(repository: mockChoreRepository),
         );
@@ -62,6 +64,7 @@ void main() {
           mockChoreRepository.getSingleChores(),
         ).thenThrow(Exception('Error'));
         return ChoresBloc(
+          updateSingleChore: UpdateSingleChore(repository: mockChoreRepository),
           addSingleChore: AddSingleChore(repository: mockChoreRepository),
           getSingleChores: GetSingleChores(repository: mockChoreRepository),
         );
@@ -165,6 +168,12 @@ void main() {
         return choresBloc;
       },
       act: (bloc) {
+        when(
+          mockChoreRepository.updateSingleChore(tSingleChore),
+        ).thenAnswer((_) async => {});
+        when(
+          mockChoreRepository.getSingleChores(),
+        ).thenAnswer((_) async => [tSingleChore]);
         return bloc.add(UpdateSingleChoresEvent(chore: tSingleChore));
       },
       expect: () => [
