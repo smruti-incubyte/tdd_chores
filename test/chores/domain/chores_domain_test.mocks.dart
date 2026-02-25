@@ -10,6 +10,8 @@ import 'package:tdd_chores/features/chores/domain/entities/single_chore.dart'
     as _i4;
 import 'package:tdd_chores/features/chores/domain/repositories/repository.dart'
     as _i2;
+import 'package:tdd_chores/features/chores/domain/usecases/add_single_chore.dart'
+    as _i5;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -43,4 +45,12 @@ class MockChoreRepository extends _i1.Mock implements _i2.ChoreRepository {
             ),
           )
           as _i3.Future<List<_i4.SingleChoreEntity>>);
+
+  @override
+  _i3.Future<dynamic> addSingleChore(_i5.AddSingleChoreParams? params) =>
+      (super.noSuchMethod(
+            Invocation.method(#addSingleChore, [params]),
+            returnValue: _i3.Future<dynamic>.value(),
+          )
+          as _i3.Future<dynamic>);
 }

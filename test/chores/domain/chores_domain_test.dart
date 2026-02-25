@@ -51,6 +51,9 @@ void main() {
       status: ChoreStatus.todo,
     );
 
+    when(
+      mockChoreRepository.addSingleChore(AddSingleChoreParams(chore: tChore)),
+    ).thenAnswer((_) async => {});
     final useCase = AddSingleChore(repository: mockChoreRepository);
     await useCase(AddSingleChoreParams(chore: tChore));
     verify(
