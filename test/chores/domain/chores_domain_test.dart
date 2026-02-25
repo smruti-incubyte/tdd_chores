@@ -97,5 +97,12 @@ void main() {
     );
 
     final useCase = DeleteSingleChore(repository: mockChoreRepository);
+    await useCase(DeleteSingleChoreParams(chore: tChore));
+    verify(
+      mockChoreRepository.deleteSingleChore(
+        DeleteSingleChoreParams(chore: tChore),
+      ),
+    );
+    verifyNoMoreInteractions(mockChoreRepository);
   });
 }
