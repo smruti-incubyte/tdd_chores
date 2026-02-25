@@ -71,6 +71,19 @@ void main() {
       status: ChoreStatus.todo,
     );
 
+    when(
+      mockChoreRepository.updateSingleChore(
+        UpdateSingleChoreParams(chore: tChore),
+      ),
+    ).thenAnswer((_) async => {});
+
     final useCase = UpdateSingleChore(repository: mockChoreRepository);
+    await useCase(UpdateSingleChoreParams(chore: tChore));
+    verify(
+      mockChoreRepository.updateSingleChore(
+        UpdateSingleChoreParams(chore: tChore),
+      ),
+    );
+    verifyNoMoreInteractions(mockChoreRepository);
   });
 }
