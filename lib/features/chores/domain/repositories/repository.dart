@@ -1,3 +1,4 @@
+import 'package:tdd_chores/features/chores/domain/entities/group_chore.dart';
 import 'package:tdd_chores/features/chores/domain/entities/single_chore.dart';
 
 abstract class ChoreRepository {
@@ -5,4 +6,5 @@ abstract class ChoreRepository {
   Future<void> addSingleChore(SingleChoreEntity chore);
   Future<void> updateSingleChore(SingleChoreEntity chore);
   Future<void> deleteSingleChore(SingleChoreEntity chore);
+  Future<List<GroupChoreEntity>> getGroupChores();
 }
