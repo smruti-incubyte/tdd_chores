@@ -100,4 +100,13 @@ class MockChoreRepository extends _i1.Mock implements _i2.ChoreRepository {
             returnValueForMissingStub: _i3.Future<void>.value(),
           )
           as _i3.Future<void>);
+
+  @override
+  _i3.Future<void> deleteGroupChore(_i5.GroupChoreEntity? groupChore) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteGroupChore, [groupChore]),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
+          )
+          as _i3.Future<void>);
 }

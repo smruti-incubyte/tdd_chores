@@ -9,4 +9,5 @@ abstract class ChoreRepository {
   Future<List<GroupChoreEntity>> getGroupChores();
   Future<void> addGroupChore(GroupChoreEntity groupChore);
   Future<void> updateGroupChore(GroupChoreEntity groupChore);
+  Future<void> deleteGroupChore(GroupChoreEntity groupChore);
 }
