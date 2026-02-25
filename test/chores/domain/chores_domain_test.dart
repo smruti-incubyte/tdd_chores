@@ -3,6 +3,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:tdd_chores/core/enums/enums.dart';
 import 'package:tdd_chores/core/usecase/usecase.dart';
+import 'package:tdd_chores/features/chores/domain/entities/group_chore.dart';
 import 'package:tdd_chores/features/chores/domain/entities/single_chore.dart';
 import 'package:tdd_chores/features/chores/domain/repositories/repository.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/add_single_chore.dart';
@@ -99,18 +100,17 @@ void main() {
   });
 
   test('should get list of group chores from repository', () async {
-    final tChores = [
+    final tGroupChores = [
       GroupChoreEntity(
         id: '1',
-        dateTime: DateTime(2024, 1, 1),
         chores: [
-          SingleChoreEntity(
+          GroupChoreItem(
             id: '1',
             name: 'Test Chore 1',
-            dateTime: DateTime(2024, 1, 1),
             status: ChoreStatus.todo,
           ),
         ],
+        dateTime: DateTime(2024, 1, 1),
       ),
     ];
   });
