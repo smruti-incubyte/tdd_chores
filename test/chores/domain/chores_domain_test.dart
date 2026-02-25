@@ -86,4 +86,15 @@ void main() {
     );
     verifyNoMoreInteractions(mockChoreRepository);
   });
+
+  test('should delete a single chore from repository', () async {
+    final tChore = SingleChoreEntity(
+      id: '1',
+      name: 'Test Chore 1',
+      dateTime: DateTime(2024, 1, 1),
+      status: ChoreStatus.todo,
+    );
+
+    final useCase = DeleteSingleChore(repository: mockChoreRepository);
+  });
 }
