@@ -17,6 +17,10 @@ void main() {
   setUp(() {
     mockChoreRepository = MockChoreRepository();
   });
+  ChoresBloc choresBloc = ChoresBloc(
+    getSingleChores: GetSingleChores(repository: mockChoreRepository),
+    addSingleChore: AddSingleChore(repository: mockChoreRepository),
+  );
 
   group('GetSingleChoresEvent', () {
     final tDateTime = DateTime(2024, 1, 1);
@@ -81,10 +85,7 @@ void main() {
     blocTest<ChoresBloc, ChoresState>(
       'emits [ChoresLoaded] with refreshed singleChores on success',
       build: () {
-        return ChoresBloc(
-          getSingleChores: GetSingleChores(repository: mockChoreRepository),
-          addSingleChore: AddSingleChore(repository: mockChoreRepository),
-        );
+        return choresBloc;
       },
       act: (bloc) {
         when(
@@ -99,6 +100,71 @@ void main() {
         ChoresLoading(),
         ChoresLoaded(singleChores: [tSingleChore]),
       ],
+      verify: (bloc) {
+        verify(mockChoreRepository.addSingleChore(tSingleChore)).called(1);
+        verify(mockChoreRepository.getSingleChores()).called(1);
+      },
+    );
+
+    blocTest<ChoresBloc, ChoresState>(
+      'emits [ChoresError] when addSingleChore throws',
+      build: () {
+        when(
+          mockChoreRepository.addSingleChore(any),
+        ).thenThrow(Exception('add failed'));
+        return choresBloc;
+      },
+      act: (bloc) {
+        when(
+          mockChoreRepository.addSingleChore(tSingleChore),
+        ).thenThrow(Exception('add failed'));
+        return bloc.add(AddSingleChoresEvent(chore: tSingleChore));
+      },
+      expect: () => [
+        ChoresLoading(),
+        ChoresError('add failed', message: 'Error adding single chore'),
+      ],
+      verify: (bloc) {
+        verify(mockChoreRepository.addSingleChore(tSingleChore)).called(1);
+      },
+    );
+    blocTest<ChoresBloc, ChoresState>(
+      'verifies addSingleChore is called with correct params',
+      build: () {
+        when(
+          mockChoreRepository.addSingleChore(tSingleChore),
+        ).thenAnswer((_) async => {});
+        when(
+          mockChoreRepository.getSingleChores(),
+        ).thenAnswer((_) async => [tSingleChore]);
+        return choresBloc;
+      },
+      act: (bloc) {
+        return bloc.add(AddSingleChoresEvent(chore: tSingleChore));
+      },
+      verify: (_) {
+        verify(mockChoreRepository.addSingleChore(tSingleChore)).called(1);
+        verify(mockChoreRepository.getSingleChores()).called(1);
+      },
+    );
+  });
+  group('UpdateSingleChoresEvent', () {
+    final tDateTime = DateTime(2024, 1, 1);
+    final tSingleChore = SingleChoreEntity(
+      id: '1',
+      name: 'Test Chore',
+      dateTime: tDateTime,
+      status: ChoreStatus.todo,
+    );
+
+    blocTest<ChoresBloc, ChoresState>(
+      'emits [ChoresLoaded] with refreshed singleChores on success',
+      build: () {
+        return choresBloc;
+      },
+      act: (bloc) {
+        return bloc.add(UpdateSingleChoresEvent(chore: tSingleChore));
+      },
     );
   });
 }
