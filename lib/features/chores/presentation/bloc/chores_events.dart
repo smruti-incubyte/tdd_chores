@@ -16,3 +16,10 @@ class AddSingleChoresEvent extends ChoresEvent {
   @override
   List<Object?> get props => [chore];
 }
+
+class UpdateSingleChoresEvent extends ChoresEvent {
+  final SingleChoreEntity chore;
+  const UpdateSingleChoresEvent({required this.chore});
+  @override
+  List<Object?> get props => [chore];
+}
