@@ -87,6 +87,12 @@ void main() {
         );
       },
       act: (bloc) {
+        when(
+          mockChoreRepository.addSingleChore(tSingleChore),
+        ).thenAnswer((_) async => {});
+        when(
+          mockChoreRepository.getSingleChores(),
+        ).thenAnswer((_) async => [tSingleChore]);
         return bloc.add(AddSingleChoresEvent(chore: tSingleChore));
       },
       expect: () => [
