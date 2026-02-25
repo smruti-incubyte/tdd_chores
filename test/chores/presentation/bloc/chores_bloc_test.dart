@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:tdd_chores/core/enums/enums.dart';
 import 'package:tdd_chores/features/chores/domain/entities/single_chore.dart';
+import 'package:tdd_chores/features/chores/domain/usecases/add_single_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/get_single_chore.dart';
 import 'package:tdd_chores/features/chores/presentation/bloc/chores_bloc.dart';
 import 'package:tdd_chores/features/chores/presentation/bloc/chores_events.dart';
@@ -32,8 +33,8 @@ void main() {
           mockChoreRepository.getSingleChores(),
         ).thenAnswer((_) async => [tSingleChore]);
         return ChoresBloc(
-          ChoresInitial(),
           getSingleChores: GetSingleChores(repository: mockChoreRepository),
+          addSingleChore: AddSingleChore(repository: mockChoreRepository),
         );
       },
       act: (bloc) {
@@ -55,7 +56,7 @@ void main() {
           mockChoreRepository.getSingleChores(),
         ).thenThrow(Exception('Error'));
         return ChoresBloc(
-          ChoresInitial(),
+          addSingleChore: AddSingleChore(repository: mockChoreRepository),
           getSingleChores: GetSingleChores(repository: mockChoreRepository),
         );
       },
@@ -81,8 +82,8 @@ void main() {
       'emits [ChoresLoaded] with refreshed singleChores on success',
       build: () {
         return ChoresBloc(
-          ChoresInitial(),
           getSingleChores: GetSingleChores(repository: mockChoreRepository),
+          addSingleChore: AddSingleChore(repository: mockChoreRepository),
         );
       },
       act: (bloc) {
