@@ -1,5 +1,6 @@
 import 'package:tdd_chores/core/usecase/usecase.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/add_single_chore.dart';
+import 'package:tdd_chores/features/chores/domain/usecases/delete_single_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/get_single_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/update_single_chore.dart';
 import 'package:tdd_chores/features/chores/presentation/bloc/chores_events.dart';
@@ -10,14 +11,17 @@ class ChoresBloc extends Bloc<ChoresEvent, ChoresState> {
   final GetSingleChores getSingleChores;
   final AddSingleChore addSingleChore;
   final UpdateSingleChore updateSingleChore;
+  final DeleteSingleChore deleteSingleChore;
   ChoresBloc({
     required this.getSingleChores,
     required this.addSingleChore,
     required this.updateSingleChore,
+    required this.deleteSingleChore,
   }) : super(ChoresInitial()) {
     on<GetSingleChoresEvent>(_onGetSingleChoresEvent);
     on<AddSingleChoresEvent>(_onAddSingleChoresEvent);
     on<UpdateSingleChoresEvent>(_onUpdateSingleChoresEvent);
+    on<DeleteSingleChoresEvent>(_onDeleteSingleChoresEvent);
   }
 
   Future<void> _onGetSingleChoresEvent(
@@ -58,6 +62,20 @@ class ChoresBloc extends Bloc<ChoresEvent, ChoresState> {
       emit(ChoresLoaded(singleChores: singleChores));
     } catch (e) {
       emit(ChoresError(e.toString(), message: 'Error updating single chore'));
+    }
+  }
+
+  Future<void> _onDeleteSingleChoresEvent(
+    DeleteSingleChoresEvent event,
+    Emitter<ChoresState> emit,
+  ) async {
+    try {
+      emit(ChoresLoading());
+      await deleteSingleChore(DeleteSingleChoreParams(chore: event.chore));
+      final singleChores = await getSingleChores(NoParams());
+      emit(ChoresLoaded(singleChores: singleChores));
+    } catch (e) {
+      emit(ChoresError(e.toString(), message: 'Error deleting single chore'));
     }
   }
 }

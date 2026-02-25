@@ -4,6 +4,8 @@ import 'package:mockito/mockito.dart';
 import 'package:tdd_chores/core/enums/enums.dart';
 import 'package:tdd_chores/features/chores/domain/entities/single_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/add_single_chore.dart';
+import 'package:tdd_chores/features/chores/domain/usecases/delete_single_chore.dart'
+    show DeleteSingleChore;
 import 'package:tdd_chores/features/chores/domain/usecases/get_single_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/update_single_chore.dart';
 import 'package:tdd_chores/features/chores/presentation/bloc/chores_bloc.dart';
@@ -19,6 +21,7 @@ void main() {
   setUp(() {
     mockChoreRepository = MockChoreRepository();
     choresBloc = ChoresBloc(
+      deleteSingleChore: DeleteSingleChore(repository: mockChoreRepository),
       updateSingleChore: UpdateSingleChore(repository: mockChoreRepository),
       getSingleChores: GetSingleChores(repository: mockChoreRepository),
       addSingleChore: AddSingleChore(repository: mockChoreRepository),
@@ -40,6 +43,7 @@ void main() {
           mockChoreRepository.getSingleChores(),
         ).thenAnswer((_) async => [tSingleChore]);
         return ChoresBloc(
+          deleteSingleChore: DeleteSingleChore(repository: mockChoreRepository),
           updateSingleChore: UpdateSingleChore(repository: mockChoreRepository),
           getSingleChores: GetSingleChores(repository: mockChoreRepository),
           addSingleChore: AddSingleChore(repository: mockChoreRepository),
@@ -64,6 +68,7 @@ void main() {
           mockChoreRepository.getSingleChores(),
         ).thenThrow(Exception('Error'));
         return ChoresBloc(
+          deleteSingleChore: DeleteSingleChore(repository: mockChoreRepository),
           updateSingleChore: UpdateSingleChore(repository: mockChoreRepository),
           addSingleChore: AddSingleChore(repository: mockChoreRepository),
           getSingleChores: GetSingleChores(repository: mockChoreRepository),
@@ -233,14 +238,28 @@ void main() {
       dateTime: tDateTime,
       status: ChoreStatus.todo,
     );
+    blocTest<ChoresBloc, ChoresState>(
+      'emits [ChoresLoaded] with refreshed singleChores on success',
+      build: () {
+        when(
+          mockChoreRepository.deleteSingleChore(tSingleChore),
+        ).thenAnswer((_) async => {});
+        when(
+          mockChoreRepository.getSingleChores(),
+        ).thenAnswer((_) async => [tSingleChore]);
+        return choresBloc;
+      },
+      act: (bloc) {
+        return bloc.add(DeleteSingleChoresEvent(chore: tSingleChore));
+      },
+      expect: () => [
+        ChoresLoading(),
+        ChoresLoaded(singleChores: [tSingleChore]),
+      ],
+      verify: (bloc) {
+        verify(mockChoreRepository.deleteSingleChore(tSingleChore)).called(1);
+        verify(mockChoreRepository.getSingleChores()).called(1);
+      },
+    );
   });
-  blocTest<ChoresBloc, ChoresState>(
-    'emits [ChoresLoaded] with refreshed singleChores on success',
-    build: () {
-      return choresBloc;
-    },
-    act: (bloc) {
-      return bloc.add(DeleteSingleChoresEvent(chore: tSingleChore));
-    },
-  );
 }
