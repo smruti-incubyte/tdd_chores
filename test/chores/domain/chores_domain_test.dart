@@ -115,6 +115,10 @@ void main() {
       ),
     ];
 
+    when(
+      mockChoreRepository.getGroupChores(),
+    ).thenAnswer((_) async => tGroupChores);
+
     final useCase = GetGroupChores(repository: mockChoreRepository);
     final result = await useCase(NoParams());
     expect(result, equals(tGroupChores));

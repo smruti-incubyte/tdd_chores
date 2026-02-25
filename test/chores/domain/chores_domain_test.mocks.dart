@@ -6,6 +6,8 @@
 import 'dart:async' as _i3;
 
 import 'package:mockito/mockito.dart' as _i1;
+import 'package:tdd_chores/features/chores/domain/entities/group_chore.dart'
+    as _i5;
 import 'package:tdd_chores/features/chores/domain/entities/single_chore.dart'
     as _i4;
 import 'package:tdd_chores/features/chores/domain/repositories/repository.dart'
@@ -70,4 +72,14 @@ class MockChoreRepository extends _i1.Mock implements _i2.ChoreRepository {
             returnValueForMissingStub: _i3.Future<void>.value(),
           )
           as _i3.Future<void>);
+
+  @override
+  _i3.Future<List<_i5.GroupChoreEntity>> getGroupChores() =>
+      (super.noSuchMethod(
+            Invocation.method(#getGroupChores, []),
+            returnValue: _i3.Future<List<_i5.GroupChoreEntity>>.value(
+              <_i5.GroupChoreEntity>[],
+            ),
+          )
+          as _i3.Future<List<_i5.GroupChoreEntity>>);
 }
