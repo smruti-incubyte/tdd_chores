@@ -1,4 +1,5 @@
 import 'package:tdd_chores/core/usecase/usecase.dart';
+import 'package:tdd_chores/features/chores/domain/usecases/add_group_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/add_single_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/delete_single_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/get_group_chore.dart';
@@ -14,18 +15,21 @@ class ChoresBloc extends Bloc<ChoresEvent, ChoresState> {
   final UpdateSingleChore updateSingleChore;
   final DeleteSingleChore deleteSingleChore;
   final GetGroupChores getGroupChores;
+  final AddGroupChore addGroupChore;
   ChoresBloc({
     required this.getSingleChores,
     required this.addSingleChore,
     required this.updateSingleChore,
     required this.deleteSingleChore,
     required this.getGroupChores,
+    required this.addGroupChore,
   }) : super(ChoresInitial()) {
     on<GetSingleChoresEvent>(_onGetSingleChoresEvent);
     on<AddSingleChoresEvent>(_onAddSingleChoresEvent);
     on<UpdateSingleChoresEvent>(_onUpdateSingleChoresEvent);
     on<DeleteSingleChoresEvent>(_onDeleteSingleChoresEvent);
     on<GetGroupChoresEvent>(_onGetGroupChoresEvent);
+    on<AddGroupChoresEvent>(_onAddGroupChoresEvent);
   }
 
   Future<void> _onGetSingleChoresEvent(
@@ -94,6 +98,21 @@ class ChoresBloc extends Bloc<ChoresEvent, ChoresState> {
       emit(ChoresLoaded(groupChores: result, singleChores: singleChores));
     } catch (e) {
       emit(ChoresError(e.toString(), message: 'Error getting group chores'));
+    }
+  }
+
+  Future<void> _onAddGroupChoresEvent(
+    AddGroupChoresEvent event,
+    Emitter<ChoresState> emit,
+  ) async {
+    try {
+      emit(ChoresLoading());
+      await addGroupChore(AddGroupChoreParams(groupChore: event.groupChore));
+      final groupChores = await getGroupChores(NoParams());
+      final singleChores = await getSingleChores(NoParams());
+      emit(ChoresLoaded(groupChores: groupChores, singleChores: singleChores));
+    } catch (e) {
+      emit(ChoresError(e.toString(), message: 'Error adding group chore'));
     }
   }
 }

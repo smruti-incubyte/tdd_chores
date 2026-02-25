@@ -4,6 +4,7 @@ import 'package:mockito/mockito.dart';
 import 'package:tdd_chores/core/enums/enums.dart';
 import 'package:tdd_chores/features/chores/domain/entities/group_chore.dart';
 import 'package:tdd_chores/features/chores/domain/entities/single_chore.dart';
+import 'package:tdd_chores/features/chores/domain/usecases/add_group_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/add_single_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/delete_single_chore.dart'
     show DeleteSingleChore;
@@ -23,6 +24,7 @@ void main() {
   setUp(() {
     mockChoreRepository = MockChoreRepository();
     choresBloc = ChoresBloc(
+      addGroupChore: AddGroupChore(repository: mockChoreRepository),
       deleteSingleChore: DeleteSingleChore(repository: mockChoreRepository),
       updateSingleChore: UpdateSingleChore(repository: mockChoreRepository),
       getSingleChores: GetSingleChores(repository: mockChoreRepository),
@@ -46,6 +48,7 @@ void main() {
           mockChoreRepository.getSingleChores(),
         ).thenAnswer((_) async => [tSingleChore]);
         return ChoresBloc(
+          addGroupChore: AddGroupChore(repository: mockChoreRepository),
           deleteSingleChore: DeleteSingleChore(repository: mockChoreRepository),
           updateSingleChore: UpdateSingleChore(repository: mockChoreRepository),
           getSingleChores: GetSingleChores(repository: mockChoreRepository),
@@ -72,6 +75,7 @@ void main() {
           mockChoreRepository.getSingleChores(),
         ).thenThrow(Exception('Error'));
         return ChoresBloc(
+          addGroupChore: AddGroupChore(repository: mockChoreRepository),
           deleteSingleChore: DeleteSingleChore(repository: mockChoreRepository),
           updateSingleChore: UpdateSingleChore(repository: mockChoreRepository),
           addSingleChore: AddSingleChore(repository: mockChoreRepository),
@@ -246,7 +250,22 @@ void main() {
         return choresBloc;
       },
       act: (bloc) {
+        when(
+          mockChoreRepository.addGroupChore(tGroupChore),
+        ).thenAnswer((_) async => {});
+        when(
+          mockChoreRepository.getGroupChores(),
+        ).thenAnswer((_) async => [tGroupChore]);
+        when(mockChoreRepository.getSingleChores()).thenAnswer((_) async => []);
         bloc.add(AddGroupChoresEvent(groupChore: tGroupChore));
+      },
+      expect: () => [
+        ChoresLoading(),
+        ChoresLoaded(singleChores: [], groupChores: [tGroupChore]),
+      ],
+      verify: (bloc) {
+        verify(mockChoreRepository.addGroupChore(tGroupChore)).called(1);
+        verify(mockChoreRepository.getGroupChores()).called(1);
       },
     );
   });

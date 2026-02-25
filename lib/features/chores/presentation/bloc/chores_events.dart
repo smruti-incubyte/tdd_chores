@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:tdd_chores/features/chores/domain/entities/group_chore.dart';
 import 'package:tdd_chores/features/chores/domain/entities/single_chore.dart';
 
 abstract class ChoresEvent extends Equatable {
@@ -32,3 +33,10 @@ class DeleteSingleChoresEvent extends ChoresEvent {
 }
 
 class GetGroupChoresEvent extends ChoresEvent {}
+
+class AddGroupChoresEvent extends ChoresEvent {
+  final GroupChoreEntity groupChore;
+  const AddGroupChoresEvent({required this.groupChore});
+  @override
+  List<Object?> get props => [groupChore];
+}
