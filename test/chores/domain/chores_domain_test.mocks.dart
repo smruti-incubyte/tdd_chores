@@ -10,12 +10,6 @@ import 'package:tdd_chores/features/chores/domain/entities/single_chore.dart'
     as _i4;
 import 'package:tdd_chores/features/chores/domain/repositories/repository.dart'
     as _i2;
-import 'package:tdd_chores/features/chores/domain/usecases/add_single_chore.dart'
-    as _i5;
-import 'package:tdd_chores/features/chores/domain/usecases/delete_single_chore.dart'
-    as _i7;
-import 'package:tdd_chores/features/chores/domain/usecases/update_single_chore.dart'
-    as _i6;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -51,27 +45,27 @@ class MockChoreRepository extends _i1.Mock implements _i2.ChoreRepository {
           as _i3.Future<List<_i4.SingleChoreEntity>>);
 
   @override
-  _i3.Future<void> addSingleChore(_i5.AddSingleChoreParams? params) =>
+  _i3.Future<void> addSingleChore(_i4.SingleChoreEntity? chore) =>
       (super.noSuchMethod(
-            Invocation.method(#addSingleChore, [params]),
+            Invocation.method(#addSingleChore, [chore]),
             returnValue: _i3.Future<void>.value(),
             returnValueForMissingStub: _i3.Future<void>.value(),
           )
           as _i3.Future<void>);
 
   @override
-  _i3.Future<void> updateSingleChore(_i6.UpdateSingleChoreParams? params) =>
+  _i3.Future<void> updateSingleChore(_i4.SingleChoreEntity? chore) =>
       (super.noSuchMethod(
-            Invocation.method(#updateSingleChore, [params]),
+            Invocation.method(#updateSingleChore, [chore]),
             returnValue: _i3.Future<void>.value(),
             returnValueForMissingStub: _i3.Future<void>.value(),
           )
           as _i3.Future<void>);
 
   @override
-  _i3.Future<void> deleteSingleChore(_i7.DeleteSingleChoreParams? params) =>
+  _i3.Future<void> deleteSingleChore(_i4.SingleChoreEntity? chore) =>
       (super.noSuchMethod(
-            Invocation.method(#deleteSingleChore, [params]),
+            Invocation.method(#deleteSingleChore, [chore]),
             returnValue: _i3.Future<void>.value(),
             returnValueForMissingStub: _i3.Future<void>.value(),
           )

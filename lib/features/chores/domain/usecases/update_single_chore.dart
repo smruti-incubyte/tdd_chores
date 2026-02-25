@@ -10,7 +10,7 @@ class UpdateSingleChore implements UseCase<void, UpdateSingleChoreParams> {
 
   @override
   Future<void> call(UpdateSingleChoreParams params) async {
-    return await repository.updateSingleChore(params);
+    return await repository.updateSingleChore(params.chore);
   }
 }
 

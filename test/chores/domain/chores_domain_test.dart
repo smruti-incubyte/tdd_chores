@@ -54,13 +54,11 @@ void main() {
     );
 
     when(
-      mockChoreRepository.addSingleChore(AddSingleChoreParams(chore: tChore)),
+      mockChoreRepository.addSingleChore(tChore),
     ).thenAnswer((_) async => {});
     final useCase = AddSingleChore(repository: mockChoreRepository);
     await useCase(AddSingleChoreParams(chore: tChore));
-    verify(
-      mockChoreRepository.addSingleChore(AddSingleChoreParams(chore: tChore)),
-    );
+    verify(mockChoreRepository.addSingleChore(tChore));
     verifyNoMoreInteractions(mockChoreRepository);
   });
 
@@ -73,18 +71,12 @@ void main() {
     );
 
     when(
-      mockChoreRepository.updateSingleChore(
-        UpdateSingleChoreParams(chore: tChore),
-      ),
+      mockChoreRepository.updateSingleChore(tChore),
     ).thenAnswer((_) async => {});
 
     final useCase = UpdateSingleChore(repository: mockChoreRepository);
     await useCase(UpdateSingleChoreParams(chore: tChore));
-    verify(
-      mockChoreRepository.updateSingleChore(
-        UpdateSingleChoreParams(chore: tChore),
-      ),
-    );
+    verify(mockChoreRepository.updateSingleChore(tChore));
     verifyNoMoreInteractions(mockChoreRepository);
   });
 
@@ -97,18 +89,12 @@ void main() {
     );
 
     when(
-      mockChoreRepository.deleteSingleChore(
-        DeleteSingleChoreParams(chore: tChore),
-      ),
+      mockChoreRepository.deleteSingleChore(tChore),
     ).thenAnswer((_) async => {});
 
     final useCase = DeleteSingleChore(repository: mockChoreRepository);
     await useCase(DeleteSingleChoreParams(chore: tChore));
-    verify(
-      mockChoreRepository.deleteSingleChore(
-        DeleteSingleChoreParams(chore: tChore),
-      ),
-    );
+    verify(mockChoreRepository.deleteSingleChore(tChore));
     verifyNoMoreInteractions(mockChoreRepository);
   });
 }

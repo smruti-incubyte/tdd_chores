@@ -10,7 +10,7 @@ class DeleteSingleChore implements UseCase<void, DeleteSingleChoreParams> {
 
   @override
   Future<void> call(DeleteSingleChoreParams params) async {
-    return await repository.deleteSingleChore(params);
+    return await repository.deleteSingleChore(params.chore);
   }
 }
 

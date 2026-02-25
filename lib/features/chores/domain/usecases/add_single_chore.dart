@@ -10,7 +10,7 @@ class AddSingleChore implements UseCase<void, AddSingleChoreParams> {
 
   @override
   Future<void> call(AddSingleChoreParams params) async {
-    return await repository.addSingleChore(params);
+    return await repository.addSingleChore(params.chore);
   }
 }
 
