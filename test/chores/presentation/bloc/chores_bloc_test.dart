@@ -268,6 +268,44 @@ void main() {
         verify(mockChoreRepository.getGroupChores()).called(1);
       },
     );
+    blocTest<ChoresBloc, ChoresState>(
+      'emits [ChoresError] when addGroupChore throws',
+      build: () {
+        when(
+          mockChoreRepository.addGroupChore(tGroupChore),
+        ).thenThrow(Exception('add failed'));
+        return choresBloc;
+      },
+      act: (bloc) {
+        return bloc.add(AddGroupChoresEvent(groupChore: tGroupChore));
+      },
+      expect: () => [
+        ChoresLoading(),
+        ChoresError('add failed', message: 'Error adding group chore'),
+      ],
+      verify: (bloc) {
+        verify(mockChoreRepository.addGroupChore(tGroupChore)).called(1);
+      },
+    );
+    blocTest<ChoresBloc, ChoresState>(
+      'verifies addGroupChore is called with correct params',
+      build: () {
+        when(
+          mockChoreRepository.addGroupChore(tGroupChore),
+        ).thenAnswer((_) async => {});
+        when(
+          mockChoreRepository.getGroupChores(),
+        ).thenAnswer((_) async => [tGroupChore]);
+        return choresBloc;
+      },
+      act: (bloc) {
+        return bloc.add(AddGroupChoresEvent(groupChore: tGroupChore));
+      },
+      verify: (bloc) {
+        verify(mockChoreRepository.addGroupChore(tGroupChore)).called(1);
+        verify(mockChoreRepository.getGroupChores()).called(1);
+      },
+    );
   });
   group('UpdateSingleChoresEvent', () {
     final tDateTime = DateTime(2024, 1, 1);
@@ -338,6 +376,25 @@ void main() {
       verify: (_) {
         verify(mockChoreRepository.updateSingleChore(tSingleChore)).called(1);
         verify(mockChoreRepository.getSingleChores()).called(1);
+      },
+    );
+  });
+
+  group('UpdateGroupChoresEvent', () {
+    final tGroupChore = GroupChoreEntity(
+      id: '1',
+      dateTime: DateTime(2024, 1, 1),
+      chores: [
+        GroupChoreItem(id: '1', name: 'Test Chore', status: ChoreStatus.todo),
+      ],
+    );
+    blocTest<ChoresBloc, ChoresState>(
+      'emits [ChoresLoaded] with refreshed groupChores on success',
+      build: () {
+        return choresBloc;
+      },
+      act: (bloc) {
+        return bloc.add(UpdateGroupChoresEvent(groupChore: tGroupChore));
       },
     );
   });
