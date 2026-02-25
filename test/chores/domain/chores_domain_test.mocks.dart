@@ -12,6 +12,8 @@ import 'package:tdd_chores/features/chores/domain/repositories/repository.dart'
     as _i2;
 import 'package:tdd_chores/features/chores/domain/usecases/add_single_chore.dart'
     as _i5;
+import 'package:tdd_chores/features/chores/domain/usecases/update_single_chore.dart'
+    as _i6;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -47,10 +49,20 @@ class MockChoreRepository extends _i1.Mock implements _i2.ChoreRepository {
           as _i3.Future<List<_i4.SingleChoreEntity>>);
 
   @override
-  _i3.Future<dynamic> addSingleChore(_i5.AddSingleChoreParams? params) =>
+  _i3.Future<void> addSingleChore(_i5.AddSingleChoreParams? params) =>
       (super.noSuchMethod(
             Invocation.method(#addSingleChore, [params]),
-            returnValue: _i3.Future<dynamic>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i3.Future<dynamic>);
+          as _i3.Future<void>);
+
+  @override
+  _i3.Future<void> updateSingleChore(_i6.UpdateSingleChoreParams? params) =>
+      (super.noSuchMethod(
+            Invocation.method(#updateSingleChore, [params]),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
+          )
+          as _i3.Future<void>);
 }
