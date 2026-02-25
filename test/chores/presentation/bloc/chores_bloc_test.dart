@@ -181,5 +181,66 @@ void main() {
         ChoresLoaded(singleChores: [tSingleChore]),
       ],
     );
+
+    blocTest<ChoresBloc, ChoresState>(
+      'emits [ChoresError] when updateSingleChore throws',
+      build: () {
+        when(
+          mockChoreRepository.updateSingleChore(tSingleChore),
+        ).thenThrow(Exception('update failed'));
+        return choresBloc;
+      },
+      act: (bloc) {
+        when(
+          mockChoreRepository.updateSingleChore(any),
+        ).thenThrow(Exception('update failed'));
+        return bloc.add(UpdateSingleChoresEvent(chore: tSingleChore));
+      },
+      expect: () => [
+        ChoresLoading(),
+        ChoresError('update failed', message: 'Error updating single chore'),
+      ],
+      verify: (bloc) {
+        verify(mockChoreRepository.updateSingleChore(tSingleChore)).called(1);
+      },
+    );
+
+    blocTest<ChoresBloc, ChoresState>(
+      'verifies updateSingleChore is called with correct params',
+      build: () {
+        when(
+          mockChoreRepository.updateSingleChore(any),
+        ).thenAnswer((_) async {});
+        when(
+          mockChoreRepository.getSingleChores(),
+        ).thenAnswer((_) async => [tSingleChore]);
+        return choresBloc;
+      },
+      act: (bloc) {
+        return bloc.add(UpdateSingleChoresEvent(chore: tSingleChore));
+      },
+      verify: (_) {
+        verify(mockChoreRepository.updateSingleChore(tSingleChore)).called(1);
+        verify(mockChoreRepository.getSingleChores()).called(1);
+      },
+    );
   });
+  group('DeleteSingleChoresEvent', () {
+    final tDateTime = DateTime(2024, 1, 1);
+    final tSingleChore = SingleChoreEntity(
+      id: '1',
+      name: 'Test Chore',
+      dateTime: tDateTime,
+      status: ChoreStatus.todo,
+    );
+  });
+  blocTest<ChoresBloc, ChoresState>(
+    'emits [ChoresLoaded] with refreshed singleChores on success',
+    build: () {
+      return choresBloc;
+    },
+    act: (bloc) {
+      return bloc.add(DeleteSingleChoresEvent(chore: tSingleChore));
+    },
+  );
 }
