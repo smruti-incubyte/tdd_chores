@@ -89,6 +89,10 @@ void main() {
       act: (bloc) {
         return bloc.add(AddSingleChoresEvent(chore: tSingleChore));
       },
+      expect: () => [
+        ChoresLoading(),
+        ChoresLoaded(singleChores: [tSingleChore]),
+      ],
     );
   });
 }
