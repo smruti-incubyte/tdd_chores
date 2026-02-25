@@ -123,4 +123,16 @@ void main() {
     final result = await useCase(NoParams());
     expect(result, equals(tGroupChores));
   });
+
+  test('should add a group chore to repository', () async {
+    final tGroupChore = GroupChoreEntity(
+      id: '1',
+      chores: [
+        GroupChoreItem(id: '1', name: 'Test Chore 1', status: ChoreStatus.todo),
+      ],
+      dateTime: DateTime(2024, 1, 1),
+    );
+
+    final useCase = AddGroupChore(repository: mockChoreRepository);
+  });
 }
