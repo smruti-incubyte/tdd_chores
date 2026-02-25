@@ -3,6 +3,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:tdd_chores/core/enums/enums.dart';
 import 'package:tdd_chores/features/chores/domain/entities/single_chore.dart';
+import 'package:tdd_chores/features/chores/domain/usecases/get_single_chore.dart';
 
 void main() {
   test('should get list of single chores from repository', () {
@@ -20,5 +21,7 @@ void main() {
         status: ChoreStatus.done,
       ),
     ];
+
+    final useCase = GetSingleChores();
   });
 }
