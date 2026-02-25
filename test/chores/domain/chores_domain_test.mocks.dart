@@ -12,6 +12,8 @@ import 'package:tdd_chores/features/chores/domain/repositories/repository.dart'
     as _i2;
 import 'package:tdd_chores/features/chores/domain/usecases/add_single_chore.dart'
     as _i5;
+import 'package:tdd_chores/features/chores/domain/usecases/delete_single_chore.dart'
+    as _i7;
 import 'package:tdd_chores/features/chores/domain/usecases/update_single_chore.dart'
     as _i6;
 
@@ -61,6 +63,15 @@ class MockChoreRepository extends _i1.Mock implements _i2.ChoreRepository {
   _i3.Future<void> updateSingleChore(_i6.UpdateSingleChoreParams? params) =>
       (super.noSuchMethod(
             Invocation.method(#updateSingleChore, [params]),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
+          )
+          as _i3.Future<void>);
+
+  @override
+  _i3.Future<void> deleteSingleChore(_i7.DeleteSingleChoreParams? params) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteSingleChore, [params]),
             returnValue: _i3.Future<void>.value(),
             returnValueForMissingStub: _i3.Future<void>.value(),
           )

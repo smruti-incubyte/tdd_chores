@@ -96,6 +96,12 @@ void main() {
       status: ChoreStatus.todo,
     );
 
+    when(
+      mockChoreRepository.deleteSingleChore(
+        DeleteSingleChoreParams(chore: tChore),
+      ),
+    ).thenAnswer((_) async => {});
+
     final useCase = DeleteSingleChore(repository: mockChoreRepository);
     await useCase(DeleteSingleChoreParams(chore: tChore));
     verify(
