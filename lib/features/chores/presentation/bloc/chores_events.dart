@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:tdd_chores/features/chores/domain/entities/single_chore.dart';
 
 abstract class ChoresEvent extends Equatable {
   const ChoresEvent();
@@ -8,3 +9,10 @@ abstract class ChoresEvent extends Equatable {
 }
 
 class GetSingleChoresEvent extends ChoresEvent {}
+
+class AddSingleChoresEvent extends ChoresEvent {
+  final SingleChoreEntity chore;
+  const AddSingleChoresEvent({required this.chore});
+  @override
+  List<Object?> get props => [chore];
+}

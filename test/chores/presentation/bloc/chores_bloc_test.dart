@@ -43,6 +43,51 @@ void main() {
         ChoresLoading(),
         ChoresLoaded(singleChores: [tSingleChore]),
       ],
+      verify: (bloc) {
+        verify(mockChoreRepository.getSingleChores()).called(1);
+      },
+    );
+
+    blocTest(
+      'emits [ChoresLoading, ChoresError] when the get single chores fails',
+      build: () {
+        when(
+          mockChoreRepository.getSingleChores(),
+        ).thenThrow(Exception('Error'));
+        return ChoresBloc(
+          ChoresInitial(),
+          getSingleChores: GetSingleChores(repository: mockChoreRepository),
+        );
+      },
+      act: (bloc) {
+        bloc.add(GetSingleChoresEvent());
+      },
+      expect: () => [
+        ChoresLoading(),
+        ChoresError('Error', message: 'Error getting single chores'),
+      ],
+    );
+  });
+
+  group('AddSingleChoresEvent', () {
+    final tDateTime = DateTime(2024, 1, 1);
+    final tSingleChore = SingleChoreEntity(
+      id: '1',
+      name: 'Test Chore',
+      dateTime: tDateTime,
+      status: ChoreStatus.todo,
+    );
+    blocTest<ChoresBloc, ChoresState>(
+      'emits [ChoresLoaded] with refreshed singleChores on success',
+      build: () {
+        return ChoresBloc(
+          ChoresInitial(),
+          getSingleChores: GetSingleChores(repository: mockChoreRepository),
+        );
+      },
+      act: (bloc) {
+        return bloc.add(AddSingleChoresEvent(chore: tSingleChore));
+      },
     );
   });
 }
