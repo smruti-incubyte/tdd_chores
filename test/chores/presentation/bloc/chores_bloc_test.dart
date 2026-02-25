@@ -121,6 +121,40 @@ void main() {
         verify(mockChoreRepository.getSingleChores()).called(1);
       },
     );
+    blocTest<ChoresBloc, ChoresState>(
+      'emits [ChoresError] when getGroupChores throws',
+      build: () {
+        when(
+          mockChoreRepository.getGroupChores(),
+        ).thenThrow(Exception('Error'));
+        return choresBloc;
+      },
+      act: (bloc) {
+        bloc.add(GetGroupChoresEvent());
+      },
+      expect: () => [
+        ChoresLoading(),
+        ChoresError('Error', message: 'Error getting group chores'),
+      ],
+      verify: (bloc) {
+        verify(mockChoreRepository.getGroupChores()).called(1);
+      },
+    );
+    blocTest<ChoresBloc, ChoresState>(
+      'verifies getGroupChores is called with correct params',
+      build: () {
+        when(
+          mockChoreRepository.getGroupChores(),
+        ).thenAnswer((_) async => tGroupChores);
+        return choresBloc;
+      },
+      act: (bloc) {
+        bloc.add(GetGroupChoresEvent());
+      },
+      verify: (bloc) {
+        verify(mockChoreRepository.getGroupChores()).called(1);
+      },
+    );
   });
 
   group('AddSingleChoresEvent', () {
@@ -194,6 +228,25 @@ void main() {
       verify: (_) {
         verify(mockChoreRepository.addSingleChore(tSingleChore)).called(1);
         verify(mockChoreRepository.getSingleChores()).called(1);
+      },
+    );
+  });
+
+  group('AddGroupChoresEvent', () {
+    final tGroupChore = GroupChoreEntity(
+      id: '1',
+      dateTime: DateTime(2024, 1, 1),
+      chores: [
+        GroupChoreItem(id: '1', name: 'Test Chore', status: ChoreStatus.todo),
+      ],
+    );
+    blocTest<ChoresBloc, ChoresState>(
+      'emits [ChoresLoaded] with refreshed groupChores on success',
+      build: () {
+        return choresBloc;
+      },
+      act: (bloc) {
+        bloc.add(AddGroupChoresEvent(groupChore: tGroupChore));
       },
     );
   });
