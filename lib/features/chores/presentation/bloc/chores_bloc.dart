@@ -15,6 +15,12 @@ class ChoresBloc extends Bloc<ChoresEvent, ChoresState> {
     GetSingleChoresEvent event,
     Emitter<ChoresState> emit,
   ) async {
-    final result = await getSingleChores(NoParams());
+    try {
+      emit(ChoresLoading());
+      final result = await getSingleChores(NoParams());
+      emit(ChoresLoaded(singleChores: result));
+    } catch (e) {
+      emit(ChoresError(e.toString(), message: 'Error getting single chores'));
+    }
   }
 }

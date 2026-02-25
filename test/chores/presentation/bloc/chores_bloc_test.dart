@@ -40,9 +40,8 @@ void main() {
         bloc.add(GetSingleChoresEvent());
       },
       expect: () => [
-        ChoresInitial(),
         ChoresLoading(),
-        ChoresLoaded(chores: [tSingleChore]),
+        ChoresLoaded(singleChores: [tSingleChore]),
       ],
     );
   });
