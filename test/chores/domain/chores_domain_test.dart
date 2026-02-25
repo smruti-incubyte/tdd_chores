@@ -134,6 +134,10 @@ void main() {
       dateTime: DateTime(2024, 1, 1),
     );
 
+    when(
+      mockChoreRepository.addGroupChore(tGroupChore),
+    ).thenAnswer((_) async => {});
+
     final useCase = AddGroupChore(repository: mockChoreRepository);
     await useCase(AddGroupChoreParams(groupChore: tGroupChore));
     verify(mockChoreRepository.addGroupChore(tGroupChore));

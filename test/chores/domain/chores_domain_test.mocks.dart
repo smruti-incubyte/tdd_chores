@@ -82,4 +82,13 @@ class MockChoreRepository extends _i1.Mock implements _i2.ChoreRepository {
             ),
           )
           as _i3.Future<List<_i5.GroupChoreEntity>>);
+
+  @override
+  _i3.Future<void> addGroupChore(_i5.GroupChoreEntity? groupChore) =>
+      (super.noSuchMethod(
+            Invocation.method(#addGroupChore, [groupChore]),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
+          )
+          as _i3.Future<void>);
 }
