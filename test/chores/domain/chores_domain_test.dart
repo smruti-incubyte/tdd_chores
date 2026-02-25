@@ -116,5 +116,7 @@ void main() {
     ];
 
     final useCase = GetGroupChores(repository: mockChoreRepository);
+    final result = await useCase(NoParams());
+    expect(result, equals(tGroupChores));
   });
 }
