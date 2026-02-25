@@ -2,6 +2,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:tdd_chores/core/enums/enums.dart';
+import 'package:tdd_chores/features/chores/domain/entities/group_chore.dart';
 import 'package:tdd_chores/features/chores/domain/entities/single_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/add_single_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/delete_single_chore.dart'
@@ -81,6 +82,28 @@ void main() {
         ChoresLoading(),
         ChoresError('Error', message: 'Error getting single chores'),
       ],
+    );
+  });
+
+  group('GetGroupChoresEvent', () {
+    final tGroupChores = [
+      GroupChoreEntity(
+        id: '1',
+        dateTime: DateTime(2024, 1, 1),
+        chores: [
+          GroupChoreItem(id: '1', name: 'Test Chore', status: ChoreStatus.todo),
+        ],
+      ),
+    ];
+    blocTest<ChoresBloc, ChoresState>(
+      'emits [ChoresLoaded] with refreshed groupChores on success',
+      build: () {
+        return choresBloc;
+      },
+      act: (bloc) {
+        bloc.add(GetGroupChoresEvent());
+        return choresBloc;
+      },
     );
   });
 
@@ -238,6 +261,7 @@ void main() {
       dateTime: tDateTime,
       status: ChoreStatus.todo,
     );
+
     blocTest<ChoresBloc, ChoresState>(
       'emits [ChoresLoaded] with refreshed singleChores on success',
       build: () {
@@ -257,6 +281,44 @@ void main() {
         ChoresLoaded(singleChores: [tSingleChore]),
       ],
       verify: (bloc) {
+        verify(mockChoreRepository.deleteSingleChore(tSingleChore)).called(1);
+        verify(mockChoreRepository.getSingleChores()).called(1);
+      },
+    );
+    blocTest<ChoresBloc, ChoresState>(
+      'emits [ChoresError] when deleteSingleChore throws',
+      build: () {
+        when(
+          mockChoreRepository.deleteSingleChore(tSingleChore),
+        ).thenThrow(Exception('delete failed'));
+        return choresBloc;
+      },
+      act: (bloc) {
+        return bloc.add(DeleteSingleChoresEvent(chore: tSingleChore));
+      },
+      expect: () => [
+        ChoresLoading(),
+        ChoresError('delete failed', message: 'Error deleting single chore'),
+      ],
+      verify: (bloc) {
+        verify(mockChoreRepository.deleteSingleChore(tSingleChore)).called(1);
+      },
+    );
+    blocTest<ChoresBloc, ChoresState>(
+      'verifies deleteSingleChore is called with correct params',
+      build: () {
+        when(
+          mockChoreRepository.deleteSingleChore(any),
+        ).thenAnswer((_) async => {});
+        when(
+          mockChoreRepository.getSingleChores(),
+        ).thenAnswer((_) async => [tSingleChore]);
+        return choresBloc;
+      },
+      act: (bloc) {
+        return bloc.add(DeleteSingleChoresEvent(chore: tSingleChore));
+      },
+      verify: (_) {
         verify(mockChoreRepository.deleteSingleChore(tSingleChore)).called(1);
         verify(mockChoreRepository.getSingleChores()).called(1);
       },
