@@ -1,6 +1,8 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:tdd_chores/core/enums/enums.dart';
+import 'package:tdd_chores/features/chores/domain/entities/single_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/get_single_chore.dart';
 import 'package:tdd_chores/features/chores/presentation/bloc/chores_bloc.dart';
 import 'package:tdd_chores/features/chores/presentation/bloc/chores_events.dart';
@@ -16,10 +18,19 @@ void main() {
   });
 
   group('GetSingleChoresEvent', () {
+    final tDateTime = DateTime(2024, 1, 1);
+    final tSingleChore = SingleChoreEntity(
+      id: '1',
+      name: 'Test Chore',
+      dateTime: tDateTime,
+      status: ChoreStatus.todo,
+    );
     blocTest<ChoresBloc, ChoresState>(
       'emits [ChoresLoading, ChoresLoaded] on success',
       build: () {
-        when(mockChoreRepository.getSingleChores()).thenAnswer((_) async => []);
+        when(
+          mockChoreRepository.getSingleChores(),
+        ).thenAnswer((_) async => [tSingleChore]);
         return ChoresBloc(
           ChoresInitial(),
           getSingleChores: GetSingleChores(repository: mockChoreRepository),
@@ -28,6 +39,11 @@ void main() {
       act: (bloc) {
         bloc.add(GetSingleChoresEvent());
       },
+      expect: () => [
+        ChoresInitial(),
+        ChoresLoading(),
+        ChoresLoaded(chores: [tSingleChore]),
+      ],
     );
   });
 }
