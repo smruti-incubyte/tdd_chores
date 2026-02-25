@@ -2,11 +2,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:tdd_chores/core/enums/enums.dart';
+import 'package:tdd_chores/core/usecase/usecase.dart';
 import 'package:tdd_chores/features/chores/domain/entities/single_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/get_single_chore.dart';
 
 void main() {
-  test('should get list of single chores from repository', () {
+  test('should get list of single chores from repository', () async {
     final tChores = [
       SingleChoreEntity(
         id: '1',
@@ -23,5 +24,6 @@ void main() {
     ];
 
     final useCase = GetSingleChores();
+    final result = await useCase(NoParams());
   });
 }
