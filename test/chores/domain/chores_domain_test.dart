@@ -135,5 +135,8 @@ void main() {
     );
 
     final useCase = AddGroupChore(repository: mockChoreRepository);
+    await useCase(AddGroupChoreParams(groupChore: tGroupChore));
+    verify(mockChoreRepository.addGroupChore(tGroupChore));
+    verifyNoMoreInteractions(mockChoreRepository);
   });
 }
