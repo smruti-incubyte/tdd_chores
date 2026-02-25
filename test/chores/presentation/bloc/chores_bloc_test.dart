@@ -5,6 +5,7 @@ import 'package:tdd_chores/core/enums/enums.dart';
 import 'package:tdd_chores/features/chores/domain/entities/single_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/add_single_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/get_single_chore.dart';
+import 'package:tdd_chores/features/chores/domain/usecases/update_single_chore.dart';
 import 'package:tdd_chores/features/chores/presentation/bloc/chores_bloc.dart';
 import 'package:tdd_chores/features/chores/presentation/bloc/chores_events.dart';
 import 'package:tdd_chores/features/chores/presentation/bloc/chores_states.dart';
@@ -13,14 +14,15 @@ import '../../domain/chores_domain_test.mocks.dart';
 
 void main() {
   late MockChoreRepository mockChoreRepository;
+  late ChoresBloc choresBloc;
 
   setUp(() {
     mockChoreRepository = MockChoreRepository();
+    choresBloc = ChoresBloc(
+      getSingleChores: GetSingleChores(repository: mockChoreRepository),
+      addSingleChore: AddSingleChore(repository: mockChoreRepository),
+    );
   });
-  ChoresBloc choresBloc = ChoresBloc(
-    getSingleChores: GetSingleChores(repository: mockChoreRepository),
-    addSingleChore: AddSingleChore(repository: mockChoreRepository),
-  );
 
   group('GetSingleChoresEvent', () {
     final tDateTime = DateTime(2024, 1, 1);
@@ -165,6 +167,10 @@ void main() {
       act: (bloc) {
         return bloc.add(UpdateSingleChoresEvent(chore: tSingleChore));
       },
+      expect: () => [
+        ChoresLoading(),
+        ChoresLoaded(singleChores: [tSingleChore]),
+      ],
     );
   });
 }
