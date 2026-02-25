@@ -30,3 +30,5 @@ class DeleteSingleChoresEvent extends ChoresEvent {
   @override
   List<Object?> get props => [chore];
 }
+
+class GetGroupChoresEvent extends ChoresEvent {}

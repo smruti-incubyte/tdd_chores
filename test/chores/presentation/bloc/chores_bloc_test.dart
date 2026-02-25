@@ -7,6 +7,7 @@ import 'package:tdd_chores/features/chores/domain/entities/single_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/add_single_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/delete_single_chore.dart'
     show DeleteSingleChore;
+import 'package:tdd_chores/features/chores/domain/usecases/get_group_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/get_single_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/update_single_chore.dart';
 import 'package:tdd_chores/features/chores/presentation/bloc/chores_bloc.dart';
@@ -26,6 +27,7 @@ void main() {
       updateSingleChore: UpdateSingleChore(repository: mockChoreRepository),
       getSingleChores: GetSingleChores(repository: mockChoreRepository),
       addSingleChore: AddSingleChore(repository: mockChoreRepository),
+      getGroupChores: GetGroupChores(repository: mockChoreRepository),
     );
   });
 
@@ -48,6 +50,7 @@ void main() {
           updateSingleChore: UpdateSingleChore(repository: mockChoreRepository),
           getSingleChores: GetSingleChores(repository: mockChoreRepository),
           addSingleChore: AddSingleChore(repository: mockChoreRepository),
+          getGroupChores: GetGroupChores(repository: mockChoreRepository),
         );
       },
       act: (bloc) {
@@ -55,7 +58,7 @@ void main() {
       },
       expect: () => [
         ChoresLoading(),
-        ChoresLoaded(singleChores: [tSingleChore]),
+        ChoresLoaded(singleChores: [tSingleChore], groupChores: []),
       ],
       verify: (bloc) {
         verify(mockChoreRepository.getSingleChores()).called(1);
@@ -73,6 +76,7 @@ void main() {
           updateSingleChore: UpdateSingleChore(repository: mockChoreRepository),
           addSingleChore: AddSingleChore(repository: mockChoreRepository),
           getSingleChores: GetSingleChores(repository: mockChoreRepository),
+          getGroupChores: GetGroupChores(repository: mockChoreRepository),
         );
       },
       act: (bloc) {
@@ -98,11 +102,23 @@ void main() {
     blocTest<ChoresBloc, ChoresState>(
       'emits [ChoresLoaded] with refreshed groupChores on success',
       build: () {
+        when(
+          mockChoreRepository.getGroupChores(),
+        ).thenAnswer((_) async => tGroupChores);
+        when(mockChoreRepository.getSingleChores()).thenAnswer((_) async => []);
         return choresBloc;
       },
       act: (bloc) {
         bloc.add(GetGroupChoresEvent());
         return choresBloc;
+      },
+      expect: () => [
+        ChoresLoading(),
+        ChoresLoaded(singleChores: [], groupChores: tGroupChores),
+      ],
+      verify: (bloc) {
+        verify(mockChoreRepository.getGroupChores()).called(1);
+        verify(mockChoreRepository.getSingleChores()).called(1);
       },
     );
   });
@@ -131,7 +147,7 @@ void main() {
       },
       expect: () => [
         ChoresLoading(),
-        ChoresLoaded(singleChores: [tSingleChore]),
+        ChoresLoaded(singleChores: [tSingleChore], groupChores: []),
       ],
       verify: (bloc) {
         verify(mockChoreRepository.addSingleChore(tSingleChore)).called(1);
@@ -206,7 +222,7 @@ void main() {
       },
       expect: () => [
         ChoresLoading(),
-        ChoresLoaded(singleChores: [tSingleChore]),
+        ChoresLoaded(singleChores: [tSingleChore], groupChores: []),
       ],
     );
 
@@ -278,7 +294,7 @@ void main() {
       },
       expect: () => [
         ChoresLoading(),
-        ChoresLoaded(singleChores: [tSingleChore]),
+        ChoresLoaded(singleChores: [tSingleChore], groupChores: []),
       ],
       verify: (bloc) {
         verify(mockChoreRepository.deleteSingleChore(tSingleChore)).called(1);
