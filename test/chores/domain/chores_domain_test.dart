@@ -97,4 +97,21 @@ void main() {
     verify(mockChoreRepository.deleteSingleChore(tChore));
     verifyNoMoreInteractions(mockChoreRepository);
   });
+
+  test('should get list of group chores from repository', () async {
+    final tChores = [
+      GroupChoreEntity(
+        id: '1',
+        dateTime: DateTime(2024, 1, 1),
+        chores: [
+          SingleChoreEntity(
+            id: '1',
+            name: 'Test Chore 1',
+            dateTime: DateTime(2024, 1, 1),
+            status: ChoreStatus.todo,
+          ),
+        ],
+      ),
+    ];
+  });
 }
