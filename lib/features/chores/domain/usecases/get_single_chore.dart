@@ -3,7 +3,7 @@ import 'package:tdd_chores/features/chores/domain/entities/single_chore.dart';
 
 class GetSingleChores implements UseCase<List<SingleChoreEntity>, NoParams> {
   @override
-  Future<List<SingleChoreEntity>> call(NoParams params) {
+  Future<List<SingleChoreEntity>> call(NoParams params) async {
     return Future.value(<SingleChoreEntity>[]);
   }
 }

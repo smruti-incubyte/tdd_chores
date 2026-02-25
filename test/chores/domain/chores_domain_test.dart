@@ -25,5 +25,6 @@ void main() {
 
     final useCase = GetSingleChores();
     final result = await useCase(NoParams());
+    expect(result, equals(tChores));
   });
 }
