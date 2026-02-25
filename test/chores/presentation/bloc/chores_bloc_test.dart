@@ -10,6 +10,9 @@ void main() {
       build: () {
         return ChoresBloc(ChoresInitial());
       },
+      act: (bloc) {
+        bloc.add(GetSingleChoresEvent());
+      },
     );
   });
 }
