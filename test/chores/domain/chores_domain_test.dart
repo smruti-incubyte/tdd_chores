@@ -163,4 +163,23 @@ void main() {
     verify(mockChoreRepository.updateGroupChore(tGroupChore));
     verifyNoMoreInteractions(mockChoreRepository);
   });
+
+  test('should delete a group chore from repository', () async {
+    final tGroupChore = GroupChoreEntity(
+      id: '1',
+      chores: [
+        GroupChoreItem(id: '1', name: 'Test Chore 1', status: ChoreStatus.todo),
+      ],
+      dateTime: DateTime(2024, 1, 1),
+    );
+
+    when(
+      mockChoreRepository.deleteGroupChore(tGroupChore),
+    ).thenAnswer((_) async => {});
+
+    final useCase = DeleteGroupChore(repository: mockChoreRepository);
+    await useCase(DeleteGroupChoreParams(groupChore: tGroupChore));
+    verify(mockChoreRepository.deleteGroupChore(tGroupChore));
+    verifyNoMoreInteractions(mockChoreRepository);
+  });
 }
