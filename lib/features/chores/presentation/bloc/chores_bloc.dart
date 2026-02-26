@@ -1,4 +1,5 @@
 import 'package:tdd_chores/core/usecase/usecase.dart';
+import 'package:tdd_chores/features/chores/domain/entities/single_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/add_group_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/add_single_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/delete_group_chore.dart';
@@ -114,11 +115,13 @@ class ChoresBloc extends Bloc<ChoresEvent, ChoresState> {
     Emitter<ChoresState> emit,
   ) async {
     try {
+      final currentSingleChores = state is ChoresLoaded
+          ? (state as ChoresLoaded).singleChores
+          : <SingleChoreEntity>[];
       emit(ChoresLoading());
       await addGroupChore(AddGroupChoreParams(groupChore: event.groupChore));
       final groupChores = await getGroupChores(NoParams());
-      final singleChores = await getSingleChores(NoParams());
-      emit(ChoresLoaded(groupChores: groupChores, singleChores: singleChores));
+      emit(ChoresLoaded(groupChores: groupChores, singleChores: currentSingleChores));
     } catch (e) {
       emit(ChoresError(e.toString(), message: 'Error adding group chore'));
     }
@@ -129,13 +132,15 @@ class ChoresBloc extends Bloc<ChoresEvent, ChoresState> {
     Emitter<ChoresState> emit,
   ) async {
     try {
+      final currentSingleChores = state is ChoresLoaded
+          ? (state as ChoresLoaded).singleChores
+          : <SingleChoreEntity>[];
       emit(ChoresLoading());
       await updateGroupChore(
         UpdateGroupChoreParams(groupChore: event.groupChore),
       );
       final groupChores = await getGroupChores(NoParams());
-      final singleChores = await getSingleChores(NoParams());
-      emit(ChoresLoaded(groupChores: groupChores, singleChores: singleChores));
+      emit(ChoresLoaded(groupChores: groupChores, singleChores: currentSingleChores));
     } catch (e) {
       emit(ChoresError(e.toString(), message: 'Error updating group chore'));
     }
@@ -146,13 +151,15 @@ class ChoresBloc extends Bloc<ChoresEvent, ChoresState> {
     Emitter<ChoresState> emit,
   ) async {
     try {
+      final currentSingleChores = state is ChoresLoaded
+          ? (state as ChoresLoaded).singleChores
+          : <SingleChoreEntity>[];
       emit(ChoresLoading());
       await deleteGroupChore(
         DeleteGroupChoreParams(groupChore: event.groupChore),
       );
       final groupChores = await getGroupChores(NoParams());
-      final singleChores = await getSingleChores(NoParams());
-      emit(ChoresLoaded(groupChores: groupChores, singleChores: singleChores));
+      emit(ChoresLoaded(groupChores: groupChores, singleChores: currentSingleChores));
     } catch (e) {
       emit(ChoresError(e.toString(), message: 'Error deleting group chore'));
     }

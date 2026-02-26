@@ -235,7 +235,6 @@ void main() {
         when(
           mockChoreRepository.getGroupChores(),
         ).thenAnswer((_) async => [tGroupChore]);
-        when(mockChoreRepository.getSingleChores()).thenAnswer((_) async => []);
         bloc.add(AddGroupChoresEvent(groupChore: tGroupChore));
       },
       expect: () => [
@@ -245,6 +244,7 @@ void main() {
       verify: (bloc) {
         verify(mockChoreRepository.addGroupChore(tGroupChore)).called(1);
         verify(mockChoreRepository.getGroupChores()).called(1);
+        verifyNever(mockChoreRepository.getSingleChores());
       },
     );
 
@@ -367,7 +367,6 @@ void main() {
         when(
           mockChoreRepository.getGroupChores(),
         ).thenAnswer((_) async => [tGroupChore]);
-        when(mockChoreRepository.getSingleChores()).thenAnswer((_) async => []);
         return bloc.add(UpdateGroupChoresEvent(groupChore: tGroupChore));
       },
       expect: () => [
@@ -377,6 +376,7 @@ void main() {
       verify: (bloc) {
         verify(mockChoreRepository.updateGroupChore(tGroupChore)).called(1);
         verify(mockChoreRepository.getGroupChores()).called(1);
+        verifyNever(mockChoreRepository.getSingleChores());
       },
     );
 
@@ -386,10 +386,6 @@ void main() {
         when(
           mockChoreRepository.updateGroupChore(tGroupChore),
         ).thenThrow(Exception('update failed'));
-        when(
-          mockChoreRepository.getGroupChores(),
-        ).thenAnswer((_) async => [tGroupChore]);
-        when(mockChoreRepository.getSingleChores()).thenAnswer((_) async => []);
         return choresBloc;
       },
       act: (bloc) {
@@ -504,7 +500,6 @@ void main() {
         when(
           mockChoreRepository.getGroupChores(),
         ).thenAnswer((_) async => [tGroupChore]);
-        when(mockChoreRepository.getSingleChores()).thenAnswer((_) async => []);
         return bloc.add(DeleteGroupChoresEvent(groupChore: tGroupChore));
       },
       expect: () => [
@@ -514,7 +509,7 @@ void main() {
       verify: (bloc) {
         verify(mockChoreRepository.deleteGroupChore(tGroupChore)).called(1);
         verify(mockChoreRepository.getGroupChores()).called(1);
-        verify(mockChoreRepository.getSingleChores()).called(1);
+        verifyNever(mockChoreRepository.getSingleChores());
       },
     );
 
@@ -547,7 +542,6 @@ void main() {
         when(
           mockChoreRepository.getGroupChores(),
         ).thenAnswer((_) async => [tGroupChore]);
-        when(mockChoreRepository.getSingleChores()).thenAnswer((_) async => []);
         return choresBloc;
       },
       act: (bloc) {
@@ -556,7 +550,7 @@ void main() {
       verify: (bloc) {
         verify(mockChoreRepository.deleteGroupChore(tGroupChore)).called(1);
         verify(mockChoreRepository.getGroupChores()).called(1);
-        verify(mockChoreRepository.getSingleChores()).called(1);
+        verifyNever(mockChoreRepository.getSingleChores());
       },
     );
   });
