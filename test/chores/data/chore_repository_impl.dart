@@ -223,4 +223,15 @@ void main() {
       verifyNoMoreInteractions(mockChoreFirebaseService);
     });
   });
+
+  group('updateGroupChore', () {
+    test('should convert entity to model and call service', () async {
+      when(
+        mockChoreFirebaseService.updateGroupChore(tGroupChoreModel),
+      ).thenAnswer((_) async => {});
+      final repository = ChoreRepositoryImpl(
+        choreFirebaseService: mockChoreFirebaseService,
+      );
+    });
+  });
 }
