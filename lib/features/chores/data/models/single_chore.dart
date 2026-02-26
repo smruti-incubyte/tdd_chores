@@ -3,38 +3,52 @@ import 'package:tdd_chores/features/chores/domain/entities/single_chore.dart';
 
 class SingleChoreModel extends SingleChoreEntity {
   const SingleChoreModel({
-    required super.id,
+    super.id,
     required super.name,
     required super.dateTime,
     required super.status,
   });
-
-  factory SingleChoreModel.fromEntity(SingleChoreEntity entity) {
-    return SingleChoreModel(
-      id: entity.id,
-      name: entity.name,
-      dateTime: entity.dateTime,
-      status: entity.status,
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {'id': id, 'name': name, 'dateTime': dateTime, 'status': status};
-  }
 
   factory SingleChoreModel.fromJson(
     Map<String, dynamic> json, {
     String? docId,
   }) {
     return SingleChoreModel(
-      id: docId ?? json['id'] ?? '',
-      name: json['name'] ?? '',
-      dateTime: json['dateTime'] != null
-          ? DateTime.parse(json['dateTime'] as String)
-          : DateTime.now(),
-      status: json['status'] != null
-          ? ChoreStatus.values.byName(json['status'] as String)
-          : ChoreStatus.todo,
+      id: docId,
+      name: json['name'] as String,
+      dateTime: DateTime.parse(json['dateTime'] as String),
+      status: ChoreStatus.values.byName(json['status'] as String),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'dateTime': dateTime.toIso8601String(),
+      'status': status.name,
+    };
+  }
+
+  SingleChoreModel copyWith({
+    String? id,
+    required String name,
+    required DateTime dateTime,
+    required ChoreStatus status,
+  }) {
+    return SingleChoreModel(
+      id: id ?? this.id,
+      name: name,
+      dateTime: dateTime,
+      status: status,
+    );
+  }
+
+  factory SingleChoreModel.fromEntity(SingleChoreEntity chore) {
+    return SingleChoreModel(
+      id: chore.id,
+      name: chore.name,
+      dateTime: chore.dateTime,
+      status: chore.status,
     );
   }
 

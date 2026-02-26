@@ -69,7 +69,6 @@ class _AddChoreScreenState extends State<AddChoreScreen> {
         name: _nameController.text.trim(),
         dateTime: _selectedDateTime,
         status: ChoreStatus.todo,
-        id: '',
       );
       context.read<ChoresBloc>().add(AddSingleChoresEvent(chore: chore));
       Navigator.of(context).pop();
