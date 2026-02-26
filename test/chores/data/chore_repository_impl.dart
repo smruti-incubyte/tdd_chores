@@ -31,42 +31,69 @@ void main() {
   setUp(() {
     mockChoreFirebaseService = MockChoreFirebaseService();
   });
-  test('should convert entity to model and call service', () async {
-    when(
-      mockChoreFirebaseService.addSingleChore(tSingleChoreModel),
-    ).thenAnswer((_) async => {});
-    final repository = ChoreRepositoryImpl(
-      choreFirebaseService: mockChoreFirebaseService,
-    );
-    await repository.addSingleChore(tSingleChoreEntity);
-    verify(mockChoreFirebaseService.addSingleChore(tSingleChoreModel));
-    verifyNoMoreInteractions(mockChoreFirebaseService);
-  });
-
-  test('should throw an exception if the service throws', () async {
-    when(
-      mockChoreFirebaseService.addSingleChore(tSingleChoreModel),
-    ).thenThrow(Exception('Service error'));
-    final repository = ChoreRepositoryImpl(
-      choreFirebaseService: mockChoreFirebaseService,
-    );
-    await expectLater(
-      repository.addSingleChore(tSingleChoreEntity),
-      throwsA(isA<Exception>()),
-    );
-  });
-
-  test(
-    'should return list of single chores entities from service models',
-    () async {
+  group('addSingleChore', () {
+    test('should convert entity to model and call service', () async {
       when(
-        mockChoreFirebaseService.getSingleChores(),
-      ).thenAnswer((_) async => [tSingleChoreModel]);
+        mockChoreFirebaseService.addSingleChore(tSingleChoreModel),
+      ).thenAnswer((_) async => {});
       final repository = ChoreRepositoryImpl(
         choreFirebaseService: mockChoreFirebaseService,
       );
-      final result = await repository.getSingleChores();
-      expect(result, equals([tSingleChoreEntity]));
-    },
-  );
+      await repository.addSingleChore(tSingleChoreEntity);
+      verify(mockChoreFirebaseService.addSingleChore(tSingleChoreModel));
+      verifyNoMoreInteractions(mockChoreFirebaseService);
+    });
+
+    test('should throw an exception if the service throws', () async {
+      when(
+        mockChoreFirebaseService.addSingleChore(tSingleChoreModel),
+      ).thenThrow(Exception('Service error'));
+      final repository = ChoreRepositoryImpl(
+        choreFirebaseService: mockChoreFirebaseService,
+      );
+      await expectLater(
+        repository.addSingleChore(tSingleChoreEntity),
+        throwsA(isA<Exception>()),
+      );
+    });
+  });
+
+  group('getSingleChores', () {
+    test(
+      'should return list of single chores entities from service models',
+      () async {
+        when(
+          mockChoreFirebaseService.getSingleChores(),
+        ).thenAnswer((_) async => [tSingleChoreModel]);
+        final repository = ChoreRepositoryImpl(
+          choreFirebaseService: mockChoreFirebaseService,
+        );
+        final result = await repository.getSingleChores();
+        expect(result, equals([tSingleChoreEntity]));
+      },
+    );
+    test('should throw an exception if the service throws', () async {
+      when(
+        mockChoreFirebaseService.getSingleChores(),
+      ).thenThrow(Exception('Service error'));
+      final repository = ChoreRepositoryImpl(
+        choreFirebaseService: mockChoreFirebaseService,
+      );
+      await expectLater(
+        repository.getSingleChores(),
+        throwsA(isA<Exception>()),
+      );
+    });
+  });
+
+  group('updateSingleChore', () {
+    test('should convert entity to model and call service', () async {
+      when(
+        mockChoreFirebaseService.updateSingleChore(tSingleChoreModel),
+      ).thenAnswer((_) async => {});
+      final repository = ChoreRepositoryImpl(
+        choreFirebaseService: mockChoreFirebaseService,
+      );
+    });
+  });
 }
