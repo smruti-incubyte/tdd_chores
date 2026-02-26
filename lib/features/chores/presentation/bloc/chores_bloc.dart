@@ -4,6 +4,7 @@ import 'package:tdd_chores/features/chores/domain/usecases/add_single_chore.dart
 import 'package:tdd_chores/features/chores/domain/usecases/delete_single_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/get_group_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/get_single_chore.dart';
+import 'package:tdd_chores/features/chores/domain/usecases/update_group_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/update_single_chore.dart';
 import 'package:tdd_chores/features/chores/presentation/bloc/chores_events.dart';
 import 'package:tdd_chores/features/chores/presentation/bloc/chores_states.dart';
@@ -16,6 +17,7 @@ class ChoresBloc extends Bloc<ChoresEvent, ChoresState> {
   final DeleteSingleChore deleteSingleChore;
   final GetGroupChores getGroupChores;
   final AddGroupChore addGroupChore;
+  final UpdateGroupChore updateGroupChore;
   ChoresBloc({
     required this.getSingleChores,
     required this.addSingleChore,
@@ -23,6 +25,7 @@ class ChoresBloc extends Bloc<ChoresEvent, ChoresState> {
     required this.deleteSingleChore,
     required this.getGroupChores,
     required this.addGroupChore,
+    required this.updateGroupChore,
   }) : super(ChoresInitial()) {
     on<GetSingleChoresEvent>(_onGetSingleChoresEvent);
     on<AddSingleChoresEvent>(_onAddSingleChoresEvent);
@@ -30,6 +33,7 @@ class ChoresBloc extends Bloc<ChoresEvent, ChoresState> {
     on<DeleteSingleChoresEvent>(_onDeleteSingleChoresEvent);
     on<GetGroupChoresEvent>(_onGetGroupChoresEvent);
     on<AddGroupChoresEvent>(_onAddGroupChoresEvent);
+    on<UpdateGroupChoresEvent>(_onUpdateGroupChoresEvent);
   }
 
   Future<void> _onGetSingleChoresEvent(
@@ -113,6 +117,23 @@ class ChoresBloc extends Bloc<ChoresEvent, ChoresState> {
       emit(ChoresLoaded(groupChores: groupChores, singleChores: singleChores));
     } catch (e) {
       emit(ChoresError(e.toString(), message: 'Error adding group chore'));
+    }
+  }
+
+  Future<void> _onUpdateGroupChoresEvent(
+    UpdateGroupChoresEvent event,
+    Emitter<ChoresState> emit,
+  ) async {
+    try {
+      emit(ChoresLoading());
+      await updateGroupChore(
+        UpdateGroupChoreParams(groupChore: event.groupChore),
+      );
+      final groupChores = await getGroupChores(NoParams());
+      final singleChores = await getSingleChores(NoParams());
+      emit(ChoresLoaded(groupChores: groupChores, singleChores: singleChores));
+    } catch (e) {
+      emit(ChoresError(e.toString(), message: 'Error updating group chore'));
     }
   }
 }

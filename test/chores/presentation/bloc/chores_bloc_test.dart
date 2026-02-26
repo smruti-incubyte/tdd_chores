@@ -10,6 +10,7 @@ import 'package:tdd_chores/features/chores/domain/usecases/delete_single_chore.d
     show DeleteSingleChore;
 import 'package:tdd_chores/features/chores/domain/usecases/get_group_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/get_single_chore.dart';
+import 'package:tdd_chores/features/chores/domain/usecases/update_group_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/update_single_chore.dart';
 import 'package:tdd_chores/features/chores/presentation/bloc/chores_bloc.dart';
 import 'package:tdd_chores/features/chores/presentation/bloc/chores_events.dart';
@@ -25,6 +26,7 @@ void main() {
     mockChoreRepository = MockChoreRepository();
     choresBloc = ChoresBloc(
       addGroupChore: AddGroupChore(repository: mockChoreRepository),
+      updateGroupChore: UpdateGroupChore(repository: mockChoreRepository),
       deleteSingleChore: DeleteSingleChore(repository: mockChoreRepository),
       updateSingleChore: UpdateSingleChore(repository: mockChoreRepository),
       getSingleChores: GetSingleChores(repository: mockChoreRepository),
@@ -49,6 +51,7 @@ void main() {
         ).thenAnswer((_) async => [tSingleChore]);
         return ChoresBloc(
           addGroupChore: AddGroupChore(repository: mockChoreRepository),
+          updateGroupChore: UpdateGroupChore(repository: mockChoreRepository),
           deleteSingleChore: DeleteSingleChore(repository: mockChoreRepository),
           updateSingleChore: UpdateSingleChore(repository: mockChoreRepository),
           getSingleChores: GetSingleChores(repository: mockChoreRepository),
@@ -76,6 +79,7 @@ void main() {
         ).thenThrow(Exception('Error'));
         return ChoresBloc(
           addGroupChore: AddGroupChore(repository: mockChoreRepository),
+          updateGroupChore: UpdateGroupChore(repository: mockChoreRepository),
           deleteSingleChore: DeleteSingleChore(repository: mockChoreRepository),
           updateSingleChore: UpdateSingleChore(repository: mockChoreRepository),
           addSingleChore: AddSingleChore(repository: mockChoreRepository),
@@ -394,7 +398,65 @@ void main() {
         return choresBloc;
       },
       act: (bloc) {
+        when(
+          mockChoreRepository.updateGroupChore(tGroupChore),
+        ).thenAnswer((_) async => {});
+        when(
+          mockChoreRepository.getGroupChores(),
+        ).thenAnswer((_) async => [tGroupChore]);
+        when(mockChoreRepository.getSingleChores()).thenAnswer((_) async => []);
         return bloc.add(UpdateGroupChoresEvent(groupChore: tGroupChore));
+      },
+      expect: () => [
+        ChoresLoading(),
+        ChoresLoaded(singleChores: [], groupChores: [tGroupChore]),
+      ],
+      verify: (bloc) {
+        verify(mockChoreRepository.updateGroupChore(tGroupChore)).called(1);
+        verify(mockChoreRepository.getGroupChores()).called(1);
+      },
+    );
+
+    blocTest<ChoresBloc, ChoresState>(
+      'emits [ChoresError] when updateGroupChore throws',
+      build: () {
+        when(
+          mockChoreRepository.updateGroupChore(tGroupChore),
+        ).thenThrow(Exception('update failed'));
+        when(
+          mockChoreRepository.getGroupChores(),
+        ).thenAnswer((_) async => [tGroupChore]);
+        when(mockChoreRepository.getSingleChores()).thenAnswer((_) async => []);
+        return choresBloc;
+      },
+      act: (bloc) {
+        bloc.add(UpdateGroupChoresEvent(groupChore: tGroupChore));
+      },
+      expect: () => [
+        ChoresLoading(),
+        ChoresError('update failed', message: 'Error updating group chore'),
+      ],
+      verify: (bloc) {
+        verify(mockChoreRepository.updateGroupChore(tGroupChore)).called(1);
+      },
+    );
+    blocTest<ChoresBloc, ChoresState>(
+      'verifies updateGroupChore is called with correct params',
+      build: () {
+        when(
+          mockChoreRepository.updateGroupChore(tGroupChore),
+        ).thenAnswer((_) async => {});
+        when(
+          mockChoreRepository.getGroupChores(),
+        ).thenAnswer((_) async => [tGroupChore]);
+        return choresBloc;
+      },
+      act: (bloc) {
+        return bloc.add(UpdateGroupChoresEvent(groupChore: tGroupChore));
+      },
+      verify: (bloc) {
+        verify(mockChoreRepository.updateGroupChore(tGroupChore)).called(1);
+        verify(mockChoreRepository.getGroupChores()).called(1);
       },
     );
   });
