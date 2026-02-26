@@ -94,6 +94,35 @@ void main() {
       final repository = ChoreRepositoryImpl(
         choreFirebaseService: mockChoreFirebaseService,
       );
+      await repository.updateSingleChore(tSingleChoreEntity);
+      verify(mockChoreFirebaseService.updateSingleChore(tSingleChoreModel));
+      verifyNoMoreInteractions(mockChoreFirebaseService);
+    });
+
+    test('should throw an exception if the service throws', () async {
+      when(
+        mockChoreFirebaseService.updateSingleChore(tSingleChoreModel),
+      ).thenThrow(Exception('Service error'));
+      final repository = ChoreRepositoryImpl(
+        choreFirebaseService: mockChoreFirebaseService,
+      );
+      await expectLater(
+        repository.updateSingleChore(tSingleChoreEntity),
+        throwsA(isA<Exception>()),
+      );
+      verify(mockChoreFirebaseService.updateSingleChore(tSingleChoreModel));
+      verifyNoMoreInteractions(mockChoreFirebaseService);
+    });
+  });
+
+  group('deleteSingleChore', () {
+    test('should convert entity to model and call service', () async {
+      when(
+        mockChoreFirebaseService.deleteSingleChore(tSingleChoreModel),
+      ).thenAnswer((_) async => {});
+      final repository = ChoreRepositoryImpl(
+        choreFirebaseService: mockChoreFirebaseService,
+      );
     });
   });
 }
