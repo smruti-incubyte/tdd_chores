@@ -59,6 +59,9 @@ void main() {
   test(
     'should return list of single chores entities from service models',
     () async {
+      when(
+        mockChoreFirebaseService.getSingleChores(),
+      ).thenAnswer((_) async => [tSingleChoreModel]);
       final repository = ChoreRepositoryImpl(
         choreFirebaseService: mockChoreFirebaseService,
       );

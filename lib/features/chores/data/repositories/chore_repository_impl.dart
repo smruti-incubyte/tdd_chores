@@ -39,9 +39,9 @@ class ChoreRepositoryImpl implements ChoreRepository {
   }
 
   @override
-  Future<List<SingleChoreEntity>> getSingleChores() {
-    // TODO: implement getSingleChores
-    throw UnimplementedError();
+  Future<List<SingleChoreEntity>> getSingleChores() async {
+    final chores = await choreFirebaseService.getSingleChores();
+    return chores.map((chore) => chore.toEntity()).toList();
   }
 
   @override

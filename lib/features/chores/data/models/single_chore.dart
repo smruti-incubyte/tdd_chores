@@ -20,4 +20,25 @@ class SingleChoreModel extends SingleChoreEntity {
   Map<String, dynamic> toJson() {
     return {'id': id, 'name': name, 'dateTime': dateTime, 'status': status};
   }
+
+  factory SingleChoreModel.fromJson(
+    Map<String, dynamic> json, {
+    String? docId,
+  }) {
+    return SingleChoreModel(
+      id: docId ?? json['id'],
+      name: json['name'],
+      dateTime: json['dateTime'],
+      status: json['status'],
+    );
+  }
+
+  SingleChoreEntity toEntity() {
+    return SingleChoreEntity(
+      id: id,
+      name: name,
+      dateTime: dateTime,
+      status: status,
+    );
+  }
 }

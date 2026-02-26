@@ -43,4 +43,14 @@ class MockChoreFirebaseService extends _i1.Mock
             returnValueForMissingStub: _i3.Future<void>.value(),
           )
           as _i3.Future<void>);
+
+  @override
+  _i3.Future<List<_i4.SingleChoreModel>> getSingleChores() =>
+      (super.noSuchMethod(
+            Invocation.method(#getSingleChores, []),
+            returnValue: _i3.Future<List<_i4.SingleChoreModel>>.value(
+              <_i4.SingleChoreModel>[],
+            ),
+          )
+          as _i3.Future<List<_i4.SingleChoreModel>>);
 }

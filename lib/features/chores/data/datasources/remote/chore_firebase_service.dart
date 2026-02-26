@@ -7,4 +7,17 @@ class ChoreFirebaseService {
   Future<void> addSingleChore(SingleChoreModel chore) async {
     await _firestore.collection('single_chores').add(chore.toJson());
   }
+
+  Future<List<SingleChoreModel>> getSingleChores() async {
+    return await _firestore
+        .collection('single_chores')
+        .get()
+        .then(
+          (value) => value.docs
+              .map(
+                (doc) => SingleChoreModel.fromJson(doc.data(), docId: doc.id),
+              )
+              .toList(),
+        );
+  }
 }
