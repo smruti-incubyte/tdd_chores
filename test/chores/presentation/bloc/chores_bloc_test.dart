@@ -7,8 +7,7 @@ import 'package:tdd_chores/features/chores/domain/entities/single_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/add_group_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/add_single_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/delete_group_chore.dart';
-import 'package:tdd_chores/features/chores/domain/usecases/delete_single_chore.dart'
-    show DeleteSingleChore;
+import 'package:tdd_chores/features/chores/domain/usecases/delete_single_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/get_group_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/get_single_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/update_group_chore.dart';
@@ -23,44 +22,45 @@ void main() {
   late MockChoreRepository mockChoreRepository;
   late ChoresBloc choresBloc;
 
+  final tSingleChore = SingleChoreEntity(
+    id: '1',
+    name: 'Test Chore',
+    dateTime: DateTime(2024, 1, 1),
+    status: ChoreStatus.todo,
+  );
+
+  final tGroupChore = GroupChoreEntity(
+    id: '1',
+    dateTime: DateTime(2024, 1, 1),
+    chores: [
+      GroupChoreItem(id: '1', name: 'Test Chore', status: ChoreStatus.todo),
+    ],
+  );
+
+  ChoresBloc makeBloc() => ChoresBloc(
+    deleteGroupChore: DeleteGroupChore(repository: mockChoreRepository),
+    addGroupChore: AddGroupChore(repository: mockChoreRepository),
+    updateGroupChore: UpdateGroupChore(repository: mockChoreRepository),
+    deleteSingleChore: DeleteSingleChore(repository: mockChoreRepository),
+    updateSingleChore: UpdateSingleChore(repository: mockChoreRepository),
+    getSingleChores: GetSingleChores(repository: mockChoreRepository),
+    addSingleChore: AddSingleChore(repository: mockChoreRepository),
+    getGroupChores: GetGroupChores(repository: mockChoreRepository),
+  );
+
   setUp(() {
     mockChoreRepository = MockChoreRepository();
-    choresBloc = ChoresBloc(
-      deleteGroupChore: DeleteGroupChore(repository: mockChoreRepository),
-      addGroupChore: AddGroupChore(repository: mockChoreRepository),
-      updateGroupChore: UpdateGroupChore(repository: mockChoreRepository),
-      deleteSingleChore: DeleteSingleChore(repository: mockChoreRepository),
-      updateSingleChore: UpdateSingleChore(repository: mockChoreRepository),
-      getSingleChores: GetSingleChores(repository: mockChoreRepository),
-      addSingleChore: AddSingleChore(repository: mockChoreRepository),
-      getGroupChores: GetGroupChores(repository: mockChoreRepository),
-    );
+    choresBloc = makeBloc();
   });
 
   group('GetSingleChoresEvent', () {
-    final tDateTime = DateTime(2024, 1, 1);
-    final tSingleChore = SingleChoreEntity(
-      id: '1',
-      name: 'Test Chore',
-      dateTime: tDateTime,
-      status: ChoreStatus.todo,
-    );
     blocTest<ChoresBloc, ChoresState>(
       'emits [ChoresLoading, ChoresLoaded] on success',
       build: () {
         when(
           mockChoreRepository.getSingleChores(),
         ).thenAnswer((_) async => [tSingleChore]);
-        return ChoresBloc(
-          deleteGroupChore: DeleteGroupChore(repository: mockChoreRepository),
-          addGroupChore: AddGroupChore(repository: mockChoreRepository),
-          updateGroupChore: UpdateGroupChore(repository: mockChoreRepository),
-          deleteSingleChore: DeleteSingleChore(repository: mockChoreRepository),
-          updateSingleChore: UpdateSingleChore(repository: mockChoreRepository),
-          getSingleChores: GetSingleChores(repository: mockChoreRepository),
-          addSingleChore: AddSingleChore(repository: mockChoreRepository),
-          getGroupChores: GetGroupChores(repository: mockChoreRepository),
-        );
+        return makeBloc();
       },
       act: (bloc) {
         bloc.add(GetSingleChoresEvent());
@@ -80,16 +80,7 @@ void main() {
         when(
           mockChoreRepository.getSingleChores(),
         ).thenThrow(Exception('Error'));
-        return ChoresBloc(
-          deleteGroupChore: DeleteGroupChore(repository: mockChoreRepository),
-          addGroupChore: AddGroupChore(repository: mockChoreRepository),
-          updateGroupChore: UpdateGroupChore(repository: mockChoreRepository),
-          deleteSingleChore: DeleteSingleChore(repository: mockChoreRepository),
-          updateSingleChore: UpdateSingleChore(repository: mockChoreRepository),
-          addSingleChore: AddSingleChore(repository: mockChoreRepository),
-          getSingleChores: GetSingleChores(repository: mockChoreRepository),
-          getGroupChores: GetGroupChores(repository: mockChoreRepository),
-        );
+        return makeBloc();
       },
       act: (bloc) {
         bloc.add(GetSingleChoresEvent());
@@ -102,21 +93,12 @@ void main() {
   });
 
   group('GetGroupChoresEvent', () {
-    final tGroupChores = [
-      GroupChoreEntity(
-        id: '1',
-        dateTime: DateTime(2024, 1, 1),
-        chores: [
-          GroupChoreItem(id: '1', name: 'Test Chore', status: ChoreStatus.todo),
-        ],
-      ),
-    ];
     blocTest<ChoresBloc, ChoresState>(
       'emits [ChoresLoaded] with refreshed groupChores on success',
       build: () {
         when(
           mockChoreRepository.getGroupChores(),
-        ).thenAnswer((_) async => tGroupChores);
+        ).thenAnswer((_) async => [tGroupChore]);
         when(mockChoreRepository.getSingleChores()).thenAnswer((_) async => []);
         return choresBloc;
       },
@@ -126,13 +108,14 @@ void main() {
       },
       expect: () => [
         ChoresLoading(),
-        ChoresLoaded(singleChores: [], groupChores: tGroupChores),
+        ChoresLoaded(singleChores: [], groupChores: [tGroupChore]),
       ],
       verify: (bloc) {
         verify(mockChoreRepository.getGroupChores()).called(1);
         verify(mockChoreRepository.getSingleChores()).called(1);
       },
     );
+
     blocTest<ChoresBloc, ChoresState>(
       'emits [ChoresError] when getGroupChores throws',
       build: () {
@@ -152,12 +135,13 @@ void main() {
         verify(mockChoreRepository.getGroupChores()).called(1);
       },
     );
+
     blocTest<ChoresBloc, ChoresState>(
       'verifies getGroupChores is called with correct params',
       build: () {
         when(
           mockChoreRepository.getGroupChores(),
-        ).thenAnswer((_) async => tGroupChores);
+        ).thenAnswer((_) async => [tGroupChore]);
         return choresBloc;
       },
       act: (bloc) {
@@ -170,13 +154,6 @@ void main() {
   });
 
   group('AddSingleChoresEvent', () {
-    final tDateTime = DateTime(2024, 1, 1);
-    final tSingleChore = SingleChoreEntity(
-      id: '1',
-      name: 'Test Chore',
-      dateTime: tDateTime,
-      status: ChoreStatus.todo,
-    );
     blocTest<ChoresBloc, ChoresState>(
       'emits [ChoresLoaded] with refreshed singleChores on success',
       build: () {
@@ -223,6 +200,7 @@ void main() {
         verify(mockChoreRepository.addSingleChore(tSingleChore)).called(1);
       },
     );
+
     blocTest<ChoresBloc, ChoresState>(
       'verifies addSingleChore is called with correct params',
       build: () {
@@ -245,13 +223,6 @@ void main() {
   });
 
   group('AddGroupChoresEvent', () {
-    final tGroupChore = GroupChoreEntity(
-      id: '1',
-      dateTime: DateTime(2024, 1, 1),
-      chores: [
-        GroupChoreItem(id: '1', name: 'Test Chore', status: ChoreStatus.todo),
-      ],
-    );
     blocTest<ChoresBloc, ChoresState>(
       'emits [ChoresLoaded] with refreshed groupChores on success',
       build: () {
@@ -276,6 +247,7 @@ void main() {
         verify(mockChoreRepository.getGroupChores()).called(1);
       },
     );
+
     blocTest<ChoresBloc, ChoresState>(
       'emits [ChoresError] when addGroupChore throws',
       build: () {
@@ -295,6 +267,7 @@ void main() {
         verify(mockChoreRepository.addGroupChore(tGroupChore)).called(1);
       },
     );
+
     blocTest<ChoresBloc, ChoresState>(
       'verifies addGroupChore is called with correct params',
       build: () {
@@ -315,15 +288,8 @@ void main() {
       },
     );
   });
-  group('UpdateSingleChoresEvent', () {
-    final tDateTime = DateTime(2024, 1, 1);
-    final tSingleChore = SingleChoreEntity(
-      id: '1',
-      name: 'Test Chore',
-      dateTime: tDateTime,
-      status: ChoreStatus.todo,
-    );
 
+  group('UpdateSingleChoresEvent', () {
     blocTest<ChoresBloc, ChoresState>(
       'emits [ChoresLoaded] with refreshed singleChores on success',
       build: () {
@@ -389,13 +355,6 @@ void main() {
   });
 
   group('UpdateGroupChoresEvent', () {
-    final tGroupChore = GroupChoreEntity(
-      id: '1',
-      dateTime: DateTime(2024, 1, 1),
-      chores: [
-        GroupChoreItem(id: '1', name: 'Test Chore', status: ChoreStatus.todo),
-      ],
-    );
     blocTest<ChoresBloc, ChoresState>(
       'emits [ChoresLoaded] with refreshed groupChores on success',
       build: () {
@@ -444,6 +403,7 @@ void main() {
         verify(mockChoreRepository.updateGroupChore(tGroupChore)).called(1);
       },
     );
+
     blocTest<ChoresBloc, ChoresState>(
       'verifies updateGroupChore is called with correct params',
       build: () {
@@ -464,15 +424,8 @@ void main() {
       },
     );
   });
-  group('DeleteSingleChoresEvent', () {
-    final tDateTime = DateTime(2024, 1, 1);
-    final tSingleChore = SingleChoreEntity(
-      id: '1',
-      name: 'Test Chore',
-      dateTime: tDateTime,
-      status: ChoreStatus.todo,
-    );
 
+  group('DeleteSingleChoresEvent', () {
     blocTest<ChoresBloc, ChoresState>(
       'emits [ChoresLoaded] with refreshed singleChores on success',
       build: () {
@@ -496,6 +449,7 @@ void main() {
         verify(mockChoreRepository.getSingleChores()).called(1);
       },
     );
+
     blocTest<ChoresBloc, ChoresState>(
       'emits [ChoresError] when deleteSingleChore throws',
       build: () {
@@ -515,6 +469,7 @@ void main() {
         verify(mockChoreRepository.deleteSingleChore(tSingleChore)).called(1);
       },
     );
+
     blocTest<ChoresBloc, ChoresState>(
       'verifies deleteSingleChore is called with correct params',
       build: () {
@@ -535,15 +490,8 @@ void main() {
       },
     );
   });
-  group('DeleteGroupChoresEvent', () {
-    final tGroupChore = GroupChoreEntity(
-      id: '1',
-      dateTime: DateTime(2024, 1, 1),
-      chores: [
-        GroupChoreItem(id: '1', name: 'Test Chore', status: ChoreStatus.todo),
-      ],
-    );
 
+  group('DeleteGroupChoresEvent', () {
     blocTest<ChoresBloc, ChoresState>(
       'emits [ChoresLoaded] with refreshed groupChores on success',
       build: () {
@@ -589,6 +537,7 @@ void main() {
         verify(mockChoreRepository.deleteGroupChore(tGroupChore)).called(1);
       },
     );
+
     blocTest<ChoresBloc, ChoresState>(
       'verifies deleteGroupChore is called with correct params',
       build: () {
