@@ -204,6 +204,23 @@ void main() {
       final repository = ChoreRepositoryImpl(
         choreFirebaseService: mockChoreFirebaseService,
       );
+      await repository.addGroupChore(tGroupChoreEntity);
+      verify(mockChoreFirebaseService.addGroupChore(tGroupChoreModel));
+      verifyNoMoreInteractions(mockChoreFirebaseService);
+    });
+    test('should throw an exception if the service throws', () async {
+      when(
+        mockChoreFirebaseService.addGroupChore(tGroupChoreModel),
+      ).thenThrow(Exception('Service error'));
+      final repository = ChoreRepositoryImpl(
+        choreFirebaseService: mockChoreFirebaseService,
+      );
+      await expectLater(
+        repository.addGroupChore(tGroupChoreEntity),
+        throwsA(isA<Exception>()),
+      );
+      verify(mockChoreFirebaseService.addGroupChore(tGroupChoreModel));
+      verifyNoMoreInteractions(mockChoreFirebaseService);
     });
   });
 }

@@ -1,4 +1,5 @@
 import 'package:tdd_chores/features/chores/data/datasources/remote/chore_firebase_service.dart';
+import 'package:tdd_chores/features/chores/data/models/group_chore.dart';
 import 'package:tdd_chores/features/chores/data/models/single_chore.dart';
 import 'package:tdd_chores/features/chores/domain/entities/group_chore.dart';
 import 'package:tdd_chores/features/chores/domain/entities/single_chore.dart';
@@ -8,9 +9,8 @@ class ChoreRepositoryImpl implements ChoreRepository {
   final ChoreFirebaseService choreFirebaseService;
   ChoreRepositoryImpl({required this.choreFirebaseService});
   @override
-  Future<void> addGroupChore(GroupChoreEntity groupChore) {
-    // TODO: implement addGroupChore
-    throw UnimplementedError();
+  Future<void> addGroupChore(GroupChoreEntity chore) async {
+    await choreFirebaseService.addGroupChore(GroupChoreModel.fromEntity(chore));
   }
 
   @override
