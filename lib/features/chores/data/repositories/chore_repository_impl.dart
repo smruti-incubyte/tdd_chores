@@ -51,8 +51,9 @@ class ChoreRepositoryImpl implements ChoreRepository {
   }
 
   @override
-  Future<void> updateSingleChore(SingleChoreEntity chore) {
-    // TODO: implement updateSingleChore
-    throw UnimplementedError();
+  Future<void> updateSingleChore(SingleChoreEntity chore) async {
+    await choreFirebaseService.updateSingleChore(
+      SingleChoreModel.fromEntity(chore),
+    );
   }
 }

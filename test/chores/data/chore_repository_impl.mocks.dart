@@ -53,4 +53,13 @@ class MockChoreFirebaseService extends _i1.Mock
             ),
           )
           as _i3.Future<List<_i4.SingleChoreModel>>);
+
+  @override
+  _i3.Future<void> updateSingleChore(_i4.SingleChoreModel? chore) =>
+      (super.noSuchMethod(
+            Invocation.method(#updateSingleChore, [chore]),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
+          )
+          as _i3.Future<void>);
 }

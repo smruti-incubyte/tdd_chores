@@ -20,4 +20,11 @@ class ChoreFirebaseService {
               .toList(),
         );
   }
+
+  Future<void> updateSingleChore(SingleChoreModel chore) async {
+    await _firestore
+        .collection('single_chores')
+        .doc(chore.id)
+        .update(chore.toJson());
+  }
 }
