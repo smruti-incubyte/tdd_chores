@@ -47,4 +47,11 @@ class ChoreFirebaseService {
   Future<void> addGroupChore(GroupChoreModel chore) async {
     await _firestore.collection('group_chores').add(chore.toJson());
   }
+
+  Future<void> updateGroupChore(GroupChoreModel chore) async {
+    await _firestore
+        .collection('group_chores')
+        .doc(chore.id)
+        .update(chore.toJson());
+  }
 }
