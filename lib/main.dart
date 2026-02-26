@@ -7,6 +7,7 @@ import 'package:tdd_chores/features/chores/domain/usecases/get_group_chore.dart'
 import 'package:tdd_chores/features/chores/domain/usecases/get_single_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/update_group_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/update_single_chore.dart';
+import 'package:tdd_chores/firebase_options.dart';
 
 import 'features/chores/presentation/screens/chores_list_screen.dart';
 
