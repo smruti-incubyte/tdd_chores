@@ -54,4 +54,8 @@ class ChoreFirebaseService {
         .doc(chore.id)
         .update(chore.toJson());
   }
+
+  Future<void> deleteGroupChore(GroupChoreModel chore) async {
+    await _firestore.collection('group_chores').doc(chore.id).delete();
+  }
 }

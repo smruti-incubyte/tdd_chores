@@ -21,9 +21,10 @@ class ChoreRepositoryImpl implements ChoreRepository {
   }
 
   @override
-  Future<void> deleteGroupChore(GroupChoreEntity groupChore) {
-    // TODO: implement deleteGroupChore
-    throw UnimplementedError();
+  Future<void> deleteGroupChore(GroupChoreEntity chore) async {
+    await choreFirebaseService.deleteGroupChore(
+      GroupChoreModel.fromEntity(chore),
+    );
   }
 
   @override
