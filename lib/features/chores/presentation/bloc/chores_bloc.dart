@@ -105,7 +105,8 @@ class ChoresBloc extends Bloc<ChoresEvent, ChoresState> {
       final result = await getGroupChores(NoParams());
       final singleChores = await getSingleChores(NoParams());
       emit(ChoresLoaded(groupChores: result, singleChores: singleChores));
-    } catch (e) {
+    } catch (e, s) {
+      print('Error getting group chores: $e $s');
       emit(ChoresError(e.toString(), message: 'Error getting group chores'));
     }
   }
@@ -121,7 +122,12 @@ class ChoresBloc extends Bloc<ChoresEvent, ChoresState> {
       emit(ChoresLoading());
       await addGroupChore(AddGroupChoreParams(groupChore: event.groupChore));
       final groupChores = await getGroupChores(NoParams());
-      emit(ChoresLoaded(groupChores: groupChores, singleChores: currentSingleChores));
+      emit(
+        ChoresLoaded(
+          groupChores: groupChores,
+          singleChores: currentSingleChores,
+        ),
+      );
     } catch (e) {
       emit(ChoresError(e.toString(), message: 'Error adding group chore'));
     }
@@ -140,7 +146,12 @@ class ChoresBloc extends Bloc<ChoresEvent, ChoresState> {
         UpdateGroupChoreParams(groupChore: event.groupChore),
       );
       final groupChores = await getGroupChores(NoParams());
-      emit(ChoresLoaded(groupChores: groupChores, singleChores: currentSingleChores));
+      emit(
+        ChoresLoaded(
+          groupChores: groupChores,
+          singleChores: currentSingleChores,
+        ),
+      );
     } catch (e) {
       emit(ChoresError(e.toString(), message: 'Error updating group chore'));
     }
@@ -159,7 +170,12 @@ class ChoresBloc extends Bloc<ChoresEvent, ChoresState> {
         DeleteGroupChoreParams(groupChore: event.groupChore),
       );
       final groupChores = await getGroupChores(NoParams());
-      emit(ChoresLoaded(groupChores: groupChores, singleChores: currentSingleChores));
+      emit(
+        ChoresLoaded(
+          groupChores: groupChores,
+          singleChores: currentSingleChores,
+        ),
+      );
     } catch (e) {
       emit(ChoresError(e.toString(), message: 'Error deleting group chore'));
     }

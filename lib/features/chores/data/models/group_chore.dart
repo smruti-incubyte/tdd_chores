@@ -11,10 +11,13 @@ class GroupChoreModel extends GroupChoreEntity {
     print('GroupChoreModel.fromJson456-${json}-${docId}');
     return GroupChoreModel(
       id: docId ?? '1',
-      dateTime: DateTime.parse(json['dateTime'] as String),
-      chores: (json['chores'] as List<dynamic>)
-          .map((e) => GroupChoreItem.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      dateTime: json['dateTime'] != null
+          ? DateTime.parse(json['dateTime'] as String)
+          : DateTime.now(),
+      chores: (json['chores'] as List<dynamic>?)
+              ?.map((e) => GroupChoreItem.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
     );
   }
 

@@ -1,3 +1,4 @@
+import 'package:tdd_chores/core/enums/enums.dart';
 import 'package:tdd_chores/features/chores/domain/entities/single_chore.dart';
 
 class SingleChoreModel extends SingleChoreEntity {
@@ -26,10 +27,14 @@ class SingleChoreModel extends SingleChoreEntity {
     String? docId,
   }) {
     return SingleChoreModel(
-      id: docId ?? json['id'],
-      name: json['name'],
-      dateTime: json['dateTime'],
-      status: json['status'],
+      id: docId ?? json['id'] ?? '',
+      name: json['name'] ?? '',
+      dateTime: json['dateTime'] != null
+          ? DateTime.parse(json['dateTime'] as String)
+          : DateTime.now(),
+      status: json['status'] != null
+          ? ChoreStatus.values.byName(json['status'] as String)
+          : ChoreStatus.todo,
     );
   }
 
