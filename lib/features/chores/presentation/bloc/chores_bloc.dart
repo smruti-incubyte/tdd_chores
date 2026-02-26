@@ -1,6 +1,7 @@
 import 'package:tdd_chores/core/usecase/usecase.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/add_group_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/add_single_chore.dart';
+import 'package:tdd_chores/features/chores/domain/usecases/delete_group_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/delete_single_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/get_group_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/get_single_chore.dart';
@@ -18,6 +19,7 @@ class ChoresBloc extends Bloc<ChoresEvent, ChoresState> {
   final GetGroupChores getGroupChores;
   final AddGroupChore addGroupChore;
   final UpdateGroupChore updateGroupChore;
+  final DeleteGroupChore deleteGroupChore;
   ChoresBloc({
     required this.getSingleChores,
     required this.addSingleChore,
@@ -26,6 +28,7 @@ class ChoresBloc extends Bloc<ChoresEvent, ChoresState> {
     required this.getGroupChores,
     required this.addGroupChore,
     required this.updateGroupChore,
+    required this.deleteGroupChore,
   }) : super(ChoresInitial()) {
     on<GetSingleChoresEvent>(_onGetSingleChoresEvent);
     on<AddSingleChoresEvent>(_onAddSingleChoresEvent);
@@ -34,6 +37,7 @@ class ChoresBloc extends Bloc<ChoresEvent, ChoresState> {
     on<GetGroupChoresEvent>(_onGetGroupChoresEvent);
     on<AddGroupChoresEvent>(_onAddGroupChoresEvent);
     on<UpdateGroupChoresEvent>(_onUpdateGroupChoresEvent);
+    on<DeleteGroupChoresEvent>(_onDeleteGroupChoresEvent);
   }
 
   Future<void> _onGetSingleChoresEvent(
@@ -134,6 +138,23 @@ class ChoresBloc extends Bloc<ChoresEvent, ChoresState> {
       emit(ChoresLoaded(groupChores: groupChores, singleChores: singleChores));
     } catch (e) {
       emit(ChoresError(e.toString(), message: 'Error updating group chore'));
+    }
+  }
+
+  Future<void> _onDeleteGroupChoresEvent(
+    DeleteGroupChoresEvent event,
+    Emitter<ChoresState> emit,
+  ) async {
+    try {
+      emit(ChoresLoading());
+      await deleteGroupChore(
+        DeleteGroupChoreParams(groupChore: event.groupChore),
+      );
+      final groupChores = await getGroupChores(NoParams());
+      final singleChores = await getSingleChores(NoParams());
+      emit(ChoresLoaded(groupChores: groupChores, singleChores: singleChores));
+    } catch (e) {
+      emit(ChoresError(e.toString(), message: 'Error deleting group chore'));
     }
   }
 }

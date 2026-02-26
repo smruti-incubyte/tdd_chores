@@ -6,6 +6,7 @@ import 'package:tdd_chores/features/chores/domain/entities/group_chore.dart';
 import 'package:tdd_chores/features/chores/domain/entities/single_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/add_group_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/add_single_chore.dart';
+import 'package:tdd_chores/features/chores/domain/usecases/delete_group_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/delete_single_chore.dart'
     show DeleteSingleChore;
 import 'package:tdd_chores/features/chores/domain/usecases/get_group_chore.dart';
@@ -25,6 +26,7 @@ void main() {
   setUp(() {
     mockChoreRepository = MockChoreRepository();
     choresBloc = ChoresBloc(
+      deleteGroupChore: DeleteGroupChore(repository: mockChoreRepository),
       addGroupChore: AddGroupChore(repository: mockChoreRepository),
       updateGroupChore: UpdateGroupChore(repository: mockChoreRepository),
       deleteSingleChore: DeleteSingleChore(repository: mockChoreRepository),
@@ -50,6 +52,7 @@ void main() {
           mockChoreRepository.getSingleChores(),
         ).thenAnswer((_) async => [tSingleChore]);
         return ChoresBloc(
+          deleteGroupChore: DeleteGroupChore(repository: mockChoreRepository),
           addGroupChore: AddGroupChore(repository: mockChoreRepository),
           updateGroupChore: UpdateGroupChore(repository: mockChoreRepository),
           deleteSingleChore: DeleteSingleChore(repository: mockChoreRepository),
@@ -78,6 +81,7 @@ void main() {
           mockChoreRepository.getSingleChores(),
         ).thenThrow(Exception('Error'));
         return ChoresBloc(
+          deleteGroupChore: DeleteGroupChore(repository: mockChoreRepository),
           addGroupChore: AddGroupChore(repository: mockChoreRepository),
           updateGroupChore: UpdateGroupChore(repository: mockChoreRepository),
           deleteSingleChore: DeleteSingleChore(repository: mockChoreRepository),
@@ -546,7 +550,64 @@ void main() {
         return choresBloc;
       },
       act: (bloc) {
+        when(
+          mockChoreRepository.deleteGroupChore(tGroupChore),
+        ).thenAnswer((_) async => {});
+        when(
+          mockChoreRepository.getGroupChores(),
+        ).thenAnswer((_) async => [tGroupChore]);
+        when(mockChoreRepository.getSingleChores()).thenAnswer((_) async => []);
         return bloc.add(DeleteGroupChoresEvent(groupChore: tGroupChore));
+      },
+      expect: () => [
+        ChoresLoading(),
+        ChoresLoaded(singleChores: [], groupChores: [tGroupChore]),
+      ],
+      verify: (bloc) {
+        verify(mockChoreRepository.deleteGroupChore(tGroupChore)).called(1);
+        verify(mockChoreRepository.getGroupChores()).called(1);
+        verify(mockChoreRepository.getSingleChores()).called(1);
+      },
+    );
+
+    blocTest<ChoresBloc, ChoresState>(
+      'emits [ChoresError] when deleteGroupChore throws',
+      build: () {
+        when(
+          mockChoreRepository.deleteGroupChore(tGroupChore),
+        ).thenThrow(Exception('delete failed'));
+        return choresBloc;
+      },
+      act: (bloc) {
+        return bloc.add(DeleteGroupChoresEvent(groupChore: tGroupChore));
+      },
+      expect: () => [
+        ChoresLoading(),
+        ChoresError('delete failed', message: 'Error deleting group chore'),
+      ],
+      verify: (bloc) {
+        verify(mockChoreRepository.deleteGroupChore(tGroupChore)).called(1);
+      },
+    );
+    blocTest<ChoresBloc, ChoresState>(
+      'verifies deleteGroupChore is called with correct params',
+      build: () {
+        when(
+          mockChoreRepository.deleteGroupChore(any),
+        ).thenAnswer((_) async => {});
+        when(
+          mockChoreRepository.getGroupChores(),
+        ).thenAnswer((_) async => [tGroupChore]);
+        when(mockChoreRepository.getSingleChores()).thenAnswer((_) async => []);
+        return choresBloc;
+      },
+      act: (bloc) {
+        bloc.add(DeleteGroupChoresEvent(groupChore: tGroupChore));
+      },
+      verify: (bloc) {
+        verify(mockChoreRepository.deleteGroupChore(tGroupChore)).called(1);
+        verify(mockChoreRepository.getGroupChores()).called(1);
+        verify(mockChoreRepository.getSingleChores()).called(1);
       },
     );
   });

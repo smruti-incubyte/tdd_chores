@@ -47,3 +47,10 @@ class UpdateGroupChoresEvent extends ChoresEvent {
   @override
   List<Object?> get props => [groupChore];
 }
+
+class DeleteGroupChoresEvent extends ChoresEvent {
+  final GroupChoreEntity groupChore;
+  const DeleteGroupChoresEvent({required this.groupChore});
+  @override
+  List<Object?> get props => [groupChore];
+}
