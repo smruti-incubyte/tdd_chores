@@ -27,4 +27,8 @@ class ChoreFirebaseService {
         .doc(chore.id)
         .update(chore.toJson());
   }
+
+  Future<void> deleteSingleChore(SingleChoreModel chore) async {
+    await _firestore.collection('single_chores').doc(chore.id).delete();
+  }
 }

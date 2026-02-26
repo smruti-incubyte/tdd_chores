@@ -123,6 +123,24 @@ void main() {
       final repository = ChoreRepositoryImpl(
         choreFirebaseService: mockChoreFirebaseService,
       );
+      await repository.deleteSingleChore(tSingleChoreEntity);
+      verify(mockChoreFirebaseService.deleteSingleChore(tSingleChoreModel));
+      verifyNoMoreInteractions(mockChoreFirebaseService);
+    });
+
+    test('should throw an exception if the service throws', () async {
+      when(
+        mockChoreFirebaseService.deleteSingleChore(tSingleChoreModel),
+      ).thenThrow(Exception('Service error'));
+      final repository = ChoreRepositoryImpl(
+        choreFirebaseService: mockChoreFirebaseService,
+      );
+      await expectLater(
+        repository.deleteSingleChore(tSingleChoreEntity),
+        throwsA(isA<Exception>()),
+      );
+      verify(mockChoreFirebaseService.deleteSingleChore(tSingleChoreModel));
+      verifyNoMoreInteractions(mockChoreFirebaseService);
     });
   });
 }
