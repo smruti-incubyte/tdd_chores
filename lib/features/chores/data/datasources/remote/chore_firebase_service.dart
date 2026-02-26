@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:tdd_chores/features/chores/data/models/group_chore.dart';
 import 'package:tdd_chores/features/chores/data/models/single_chore.dart';
 
 class ChoreFirebaseService {
@@ -30,5 +31,16 @@ class ChoreFirebaseService {
 
   Future<void> deleteSingleChore(SingleChoreModel chore) async {
     await _firestore.collection('single_chores').doc(chore.id).delete();
+  }
+
+  Future<List<GroupChoreModel>> getGroupChores() async {
+    return await _firestore
+        .collection('group_chores')
+        .get()
+        .then(
+          (value) => value.docs
+              .map((doc) => GroupChoreModel.fromJson(doc.data(), docId: doc.id))
+              .toList(),
+        );
   }
 }

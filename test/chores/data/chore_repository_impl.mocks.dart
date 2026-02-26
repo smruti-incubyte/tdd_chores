@@ -8,6 +8,7 @@ import 'dart:async' as _i3;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:tdd_chores/features/chores/data/datasources/remote/chore_firebase_service.dart'
     as _i2;
+import 'package:tdd_chores/features/chores/data/models/group_chore.dart' as _i5;
 import 'package:tdd_chores/features/chores/data/models/single_chore.dart'
     as _i4;
 
@@ -71,4 +72,14 @@ class MockChoreFirebaseService extends _i1.Mock
             returnValueForMissingStub: _i3.Future<void>.value(),
           )
           as _i3.Future<void>);
+
+  @override
+  _i3.Future<List<_i5.GroupChoreModel>> getGroupChores() =>
+      (super.noSuchMethod(
+            Invocation.method(#getGroupChores, []),
+            returnValue: _i3.Future<List<_i5.GroupChoreModel>>.value(
+              <_i5.GroupChoreModel>[],
+            ),
+          )
+          as _i3.Future<List<_i5.GroupChoreModel>>);
 }

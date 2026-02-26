@@ -34,9 +34,9 @@ class ChoreRepositoryImpl implements ChoreRepository {
   }
 
   @override
-  Future<List<GroupChoreEntity>> getGroupChores() {
-    // TODO: implement getGroupChores
-    throw UnimplementedError();
+  Future<List<GroupChoreEntity>> getGroupChores() async {
+    final groupChores = await choreFirebaseService.getGroupChores();
+    return groupChores.map((chore) => chore.toEntity()).toList();
   }
 
   @override

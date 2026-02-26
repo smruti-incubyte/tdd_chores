@@ -3,6 +3,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:tdd_chores/core/enums/enums.dart';
 import 'package:tdd_chores/features/chores/data/datasources/remote/chore_firebase_service.dart';
+import 'package:tdd_chores/features/chores/data/models/group_chore.dart';
 import 'package:tdd_chores/features/chores/data/models/single_chore.dart';
 import 'package:tdd_chores/features/chores/data/repositories/chore_repository_impl.dart';
 import 'package:tdd_chores/features/chores/domain/entities/group_chore.dart';
@@ -178,7 +179,20 @@ void main() {
         final repository = ChoreRepositoryImpl(
           choreFirebaseService: mockChoreFirebaseService,
         );
+        final result = await repository.getGroupChores();
+        expect(result, equals([tGroupChoreEntity]));
       },
     );
+    test('should throw an exception if the service throws', () async {
+      when(
+        mockChoreFirebaseService.getGroupChores(),
+      ).thenThrow(Exception('Service error'));
+      final repository = ChoreRepositoryImpl(
+        choreFirebaseService: mockChoreFirebaseService,
+      );
+      await expectLater(repository.getGroupChores(), throwsA(isA<Exception>()));
+      verify(mockChoreFirebaseService.getGroupChores());
+      verifyNoMoreInteractions(mockChoreFirebaseService);
+    });
   });
 }
