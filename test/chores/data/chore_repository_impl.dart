@@ -5,6 +5,7 @@ import 'package:tdd_chores/core/enums/enums.dart';
 import 'package:tdd_chores/features/chores/data/datasources/remote/chore_firebase_service.dart';
 import 'package:tdd_chores/features/chores/data/models/single_chore.dart';
 import 'package:tdd_chores/features/chores/data/repositories/chore_repository_impl.dart';
+import 'package:tdd_chores/features/chores/domain/entities/group_chore.dart';
 import 'package:tdd_chores/features/chores/domain/entities/single_chore.dart';
 
 import 'chore_repository_impl.mocks.dart';
@@ -26,6 +27,29 @@ void main() {
     name: 'Test Chore',
     dateTime: tDateTime,
     status: ChoreStatus.todo,
+  );
+  final tGroupChoreEntity = GroupChoreEntity(
+    id: '1',
+    dateTime: tDateTime,
+    chores: [
+      const GroupChoreItem(
+        id: '1',
+        name: 'Wash dishes',
+        status: ChoreStatus.todo,
+      ),
+    ],
+  );
+
+  final tGroupChoreModel = GroupChoreModel(
+    id: '1',
+    dateTime: tDateTime,
+    chores: [
+      const GroupChoreItem(
+        id: '1',
+        name: 'Wash dishes',
+        status: ChoreStatus.todo,
+      ),
+    ],
   );
 
   setUp(() {
@@ -142,5 +166,19 @@ void main() {
       verify(mockChoreFirebaseService.deleteSingleChore(tSingleChoreModel));
       verifyNoMoreInteractions(mockChoreFirebaseService);
     });
+  });
+
+  group('getGroupChores', () {
+    test(
+      'should return list of group chores entities from service models',
+      () async {
+        when(
+          mockChoreFirebaseService.getGroupChores(),
+        ).thenAnswer((_) async => [tGroupChoreModel]);
+        final repository = ChoreRepositoryImpl(
+          choreFirebaseService: mockChoreFirebaseService,
+        );
+      },
+    );
   });
 }
