@@ -30,7 +30,7 @@ class AuthService {
 
   Future<UserCredential> signInWithGoogle() async {
     try {
-      // Call this in your initState or before calling signIn()
+      // Added this as app is not picking server client id from googleservices.json for android.
       await _googleSignIn.initialize(
         serverClientId:
             '722269513790-6dc6rp03krd6m6sp06dqpo73rp23lks0.apps.googleusercontent.com',
