@@ -93,6 +93,13 @@ class _ChoresListScreenState extends State<ChoresListScreen>
     }
   }
 
+  Future<void> _refreshChores() async {
+    context.read<ChoresBloc>().add(GetGroupChoresEvent());
+    context.read<ChoresBloc>().add(GetSingleChoresEvent());
+    // Add a small delay to ensure the events are processed
+    await Future.delayed(const Duration(milliseconds: 500));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -126,15 +133,24 @@ class _ChoresListScreenState extends State<ChoresListScreen>
               controller: _tabController,
               children: [
                 // Single Chores Tab
-                state.singleChores.isEmpty
-                    ? const EmptyChoresWidget(
-                        title: 'No single chores yet',
-                        subtitle: 'Tap the + button to add a single chore',
-                      )
-                    : ListView.builder(
-                        itemCount: state.singleChores.length,
-                        padding: const EdgeInsets.all(16),
-                        itemBuilder: (context, index) {
+                RefreshIndicator(
+                  onRefresh: _refreshChores,
+                  child: state.singleChores.isEmpty
+                      ? ListView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          children: const [
+                            SizedBox(height: 200),
+                            EmptyChoresWidget(
+                              title: 'No single chores yet',
+                              subtitle: 'Tap the + button to add a single chore',
+                            ),
+                          ],
+                        )
+                      : ListView.builder(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          itemCount: state.singleChores.length,
+                          padding: const EdgeInsets.all(16),
+                          itemBuilder: (context, index) {
                           final chore = state.singleChores[index];
                           return Card(
                             margin: const EdgeInsets.only(bottom: 12),
@@ -283,16 +299,26 @@ class _ChoresListScreenState extends State<ChoresListScreen>
                           );
                         },
                       ),
+                ),
                 // Group Chores Tab
-                state.groupChores.isEmpty
-                    ? const EmptyChoresWidget(
-                        title: 'No group chores yet',
-                        subtitle: 'Tap the + button to create a group',
-                      )
-                    : ListView.builder(
-                        itemCount: state.groupChores.length,
-                        padding: const EdgeInsets.all(16),
-                        itemBuilder: (context, index) {
+                RefreshIndicator(
+                  onRefresh: _refreshChores,
+                  child: state.groupChores.isEmpty
+                      ? ListView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          children: const [
+                            SizedBox(height: 200),
+                            EmptyChoresWidget(
+                              title: 'No group chores yet',
+                              subtitle: 'Tap the + button to create a group',
+                            ),
+                          ],
+                        )
+                      : ListView.builder(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          itemCount: state.groupChores.length,
+                          padding: const EdgeInsets.all(16),
+                          itemBuilder: (context, index) {
                           final group = state.groupChores[index];
 
                           return Card(
@@ -483,6 +509,7 @@ class _ChoresListScreenState extends State<ChoresListScreen>
                           );
                         },
                       ),
+                ),
               ],
             );
           }
