@@ -49,9 +49,12 @@ class MockNotificationRepository extends _i1.Mock
           as _i3.Future<String?>);
 
   @override
-  _i3.Future<void> saveFcmToken() =>
+  _i3.Future<void> saveFcmToken({
+    required String? token,
+    required String? user,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#saveFcmToken, []),
+            Invocation.method(#saveFcmToken, [], {#token: token, #user: user}),
             returnValue: _i3.Future<void>.value(),
             returnValueForMissingStub: _i3.Future<void>.value(),
           )

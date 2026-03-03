@@ -44,7 +44,12 @@ void main() {
       verify(mockNotificationRepository.getNotificationPermission()).called(1);
       verify(mockNotificationRepository.getFcmToken()).called(1);
       verify(mockNotificationRepository.getUser()).called(1);
-      verify(mockNotificationRepository.saveFcmToken()).called(1);
+      verify(
+        mockNotificationRepository.saveFcmToken(
+          token: 'valid-token',
+          user: 'valid-id',
+        ),
+      ).called(1);
     },
   );
 
@@ -67,7 +72,12 @@ void main() {
       //Assert
       verify(mockNotificationRepository.getNotificationPermission()).called(1);
       verify(mockNotificationRepository.getFcmToken()).called(1);
-      verifyNever(mockNotificationRepository.saveFcmToken());
+      verifyNever(
+        mockNotificationRepository.saveFcmToken(
+          token: 'valid-token',
+          user: 'valid-id',
+        ),
+      );
     },
   );
 
@@ -86,7 +96,12 @@ void main() {
       verify(mockNotificationRepository.getNotificationPermission()).called(1);
       verifyNever(mockNotificationRepository.getFcmToken());
       verifyNever(mockNotificationRepository.getUser());
-      verifyNever(mockNotificationRepository.saveFcmToken());
+      verifyNever(
+        mockNotificationRepository.saveFcmToken(
+          token: 'valid-token',
+          user: 'valid-id',
+        ),
+      );
     },
   );
 
@@ -108,7 +123,12 @@ void main() {
       verify(mockNotificationRepository.getNotificationPermission()).called(1);
       verify(mockNotificationRepository.getFcmToken()).called(1);
       verify(mockNotificationRepository.getUser()).called(1);
-      verifyNever(mockNotificationRepository.saveFcmToken());
+      verifyNever(
+        mockNotificationRepository.saveFcmToken(
+          token: 'valid-token',
+          user: 'valid-id',
+        ),
+      );
     },
   );
 }
