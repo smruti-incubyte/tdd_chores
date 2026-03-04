@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tdd_chores/core/services/notification_service.dart';
 import 'package:tdd_chores/features/auth/presentation/login_screen.dart';
 import 'package:tdd_chores/features/chores/data/datasources/remote/chore_firebase_service.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/get_group_chore.dart';
@@ -65,6 +66,9 @@ class AuthWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authService = AuthService();
+    final notificationService = NotificationService(
+      notificationRepository: FirebaseNotificationRepository(),
+    );
 
     return StreamBuilder(
       stream: authService.authStateChanges,
@@ -78,6 +82,7 @@ class AuthWrapper extends StatelessWidget {
 
         // Show ChoresListScreen if user is signed in, otherwise show LoginScreen
         if (snapshot.hasData) {
+          notificationService.saveToken();
           return const ChoresListScreen();
         } else {
           return const LoginScreen();
