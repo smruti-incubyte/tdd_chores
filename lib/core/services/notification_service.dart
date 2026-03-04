@@ -52,16 +52,15 @@ class FirebaseNotificationRepository implements NotificationRepository {
   @override
   Future<void> saveFcmToken({required String token, required String user}) async {
     final platform = Platform.operatingSystem;
-    await db
-        .collection('users')
-        .doc(user)
-        .collection('tokens')
-        .doc(token)
-        .set({
-          'token': token,
-          'createdAt': FieldValue.serverTimestamp(),
-          'platform': platform,
-        });
+    final userDoc = db.collection('users').doc(user);
+
+    await userDoc.set({'updatedAt': FieldValue.serverTimestamp()}, SetOptions(merge: true));
+
+    await userDoc.collection('tokens').doc(token).set({
+      'token': token,
+      'createdAt': FieldValue.serverTimestamp(),
+      'platform': platform,
+    });
   }
 
   @override

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:tdd_chores/core/services/notification_service.dart';
 import 'package:tdd_chores/features/auth/presentation/login_screen.dart';
 import 'package:tdd_chores/features/chores/data/datasources/remote/chore_firebase_service.dart';
@@ -26,8 +27,42 @@ void main() async {
   final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  _setupFirebaseMessaging();
   FlutterNativeSplash.remove();
   runApp(const MyApp());
+}
+
+void _setupFirebaseMessaging() {
+  final messaging = FirebaseMessaging.instance;
+
+  // App launched from a terminated state via notification
+  messaging.getInitialMessage().then((RemoteMessage? message) {
+    if (message != null) {
+      _handleNotificationPayload(message);
+    }
+  });
+
+  // App brought to foreground by tapping a notification
+  FirebaseMessaging.onMessageOpenedApp.listen(_handleNotificationPayload);
+
+  // Notification received while app is in the foreground
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    _handleNotificationPayload(message);
+  });
+}
+
+void _handleNotificationPayload(RemoteMessage message) {
+  final notification = message.notification;
+  final data = message.data;
+
+  debugPrint('Notification received:');
+  if (notification != null) {
+    debugPrint('  title: ${notification.title}');
+    debugPrint('  body:  ${notification.body}');
+  }
+  if (data.isNotEmpty) {
+    debugPrint('  data:  $data');
+  }
 }
 
 class MyApp extends StatelessWidget {

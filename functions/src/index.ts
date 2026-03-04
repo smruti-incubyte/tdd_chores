@@ -9,15 +9,13 @@ setGlobalOptions({maxInstances: 10});
 
 /**
  * Triggered when a new document is added to `single_chores` or `group_chores`.
- * Sends a push notification to all users except the one who created the chore.
+ * Sends a push notification to all users.
  *
  * @param {string} choreName - Display name of the chore.
- * @param {string | undefined} createdBy - UID of the chore creator.
  * @param {string} collectionLabel - Collection name used as notification data.
  */
-async function notifyOthersOnChoreAdded(
+async function notifyAllOnChoreAdded(
   choreName: string,
-  createdBy: string | undefined,
   collectionLabel: string
 ): Promise<void> {
   const db = admin.firestore();
@@ -26,21 +24,27 @@ async function notifyOthersOnChoreAdded(
   // Fetch all user docs
   const usersSnapshot = await db.collection("users").get();
 
-  const tokenFetches = usersSnapshot.docs
-    .filter((userDoc) => userDoc.id !== createdBy)
-    .map((userDoc) =>
-      db.collection("users").doc(userDoc.id).collection("tokens").get()
-    );
+  logger.info(`Found ${usersSnapshot.docs.length} user(s).`);
+
+  const tokenFetches = usersSnapshot.docs.map((userDoc) =>
+    db.collection("users").doc(userDoc.id).collection("tokens").get()
+  );
 
   const tokenSnapshots = await Promise.all(tokenFetches);
 
-  const tokens: string[] = tokenSnapshots
-    .flatMap((snap) => snap.docs)
-    .map((doc) => doc.data().token as string)
-    .filter(Boolean);
+  const allTokenDocs = tokenSnapshots.flatMap((snap) => snap.docs);
+  logger.info(`Found ${allTokenDocs.length} token doc(s) across all users.`);
+
+  const tokens: string[] = allTokenDocs
+    .map((doc) => {
+      const token = doc.data().token as string | undefined;
+      logger.info(`Token doc ${doc.id}: token=${token}`);
+      return token;
+    })
+    .filter((t): t is string => !!t);
 
   if (tokens.length === 0) {
-    logger.info(`No tokens to notify for ${collectionLabel} chore.`);
+    logger.warn(`No valid tokens found for ${collectionLabel} chore.`);
     return;
   }
 
@@ -69,31 +73,37 @@ async function notifyOthersOnChoreAdded(
 }
 
 export const onSingleChoreAdded = onDocumentCreated(
-  "single_chores/{choreId}",
+  {document: "single_chores/{choreId}", region: "us-central1"},
   async (event) => {
-    const data = event.data?.data();
-    if (!data) return;
+    const snapshot = event.data;
+    if (!snapshot) {
+      logger.warn("onSingleChoreAdded: no data associated with the event");
+      return;
+    }
+    const data = snapshot.data();
 
-    await notifyOthersOnChoreAdded(
+    await notifyAllOnChoreAdded(
       data.name as string,
-      data.createdBy as string | undefined,
       "single_chore"
     );
   }
 );
 
 export const onGroupChoreAdded = onDocumentCreated(
-  "group_chores/{choreId}",
+  {document: "group_chores/{choreId}", region: "us-central1"},
   async (event) => {
-    const data = event.data?.data();
-    if (!data) return;
+    const snapshot = event.data;
+    if (!snapshot) {
+      logger.warn("onGroupChoreAdded: no data associated with the event");
+      return;
+    }
+    const data = snapshot.data();
 
     // Group chores use the dateTime as a human-readable label
     const label = (data.dateTime as string) ?? "Group chore";
 
-    await notifyOthersOnChoreAdded(
+    await notifyAllOnChoreAdded(
       label,
-      data.createdBy as string | undefined,
       "group_chore"
     );
   }
