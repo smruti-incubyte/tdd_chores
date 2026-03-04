@@ -1,12 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tdd_chores/features/chores/data/models/group_chore.dart';
 import 'package:tdd_chores/features/chores/data/models/single_chore.dart';
 
 class ChoreFirebaseService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Future<void> addSingleChore(SingleChoreModel chore) async {
-    await _firestore.collection('single_chores').add(chore.toJson());
+    await _firestore.collection('single_chores').add({
+      ...chore.toJson(),
+      'createdBy': _auth.currentUser?.uid,
+    });
   }
 
   Future<List<SingleChoreModel>> getSingleChores() async {
@@ -45,7 +50,10 @@ class ChoreFirebaseService {
   }
 
   Future<void> addGroupChore(GroupChoreModel chore) async {
-    await _firestore.collection('group_chores').add(chore.toJson());
+    await _firestore.collection('group_chores').add({
+      ...chore.toJson(),
+      'createdBy': _auth.currentUser?.uid,
+    });
   }
 
   Future<void> updateGroupChore(GroupChoreModel chore) async {
