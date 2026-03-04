@@ -44,7 +44,7 @@ void main() async {
 }
 
 Future<void> _setupLocalNotifications() async {
-  const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+  const androidSettings = AndroidInitializationSettings('@drawable/ic_stat_notification');
   const darwinSettings = DarwinInitializationSettings();
   const initSettings = InitializationSettings(
     android: androidSettings,
@@ -104,7 +104,7 @@ void _showLocalNotification(RemoteMessage message) {
         channelDescription: _androidChannel.description,
         importance: Importance.high,
         priority: Priority.high,
-        icon: '@mipmap/ic_launcher',
+        icon: '@drawable/ic_stat_notification',
       ),
       iOS: const DarwinNotificationDetails(
         presentAlert: true,
