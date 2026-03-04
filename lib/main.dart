@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tdd_chores/core/services/notification_service.dart';
 import 'package:tdd_chores/features/auth/presentation/login_screen.dart';
@@ -22,8 +23,10 @@ import 'features/chores/domain/usecases/delete_single_chore.dart';
 import 'features/chores/domain/usecases/delete_group_chore.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  FlutterNativeSplash.remove();
   runApp(const MyApp());
 }
 
