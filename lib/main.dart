@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:tdd_chores/core/services/notification_service.dart';
 import 'package:tdd_chores/features/auth/presentation/login_screen.dart';
@@ -23,31 +24,54 @@ import 'features/chores/domain/usecases/add_group_chore.dart';
 import 'features/chores/domain/usecases/delete_single_chore.dart';
 import 'features/chores/domain/usecases/delete_group_chore.dart';
 
+const _androidChannel = AndroidNotificationChannel(
+  'chores_notifications',
+  'Chores Notifications',
+  description: 'Notifications for chore updates',
+  importance: Importance.high,
+);
+
+final _localNotifications = FlutterLocalNotificationsPlugin();
+
 void main() async {
   final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await _setupLocalNotifications();
   _setupFirebaseMessaging();
   FlutterNativeSplash.remove();
   runApp(const MyApp());
 }
 
+Future<void> _setupLocalNotifications() async {
+  const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+  const darwinSettings = DarwinInitializationSettings();
+  const initSettings = InitializationSettings(
+    android: androidSettings,
+    iOS: darwinSettings,
+  );
+  await _localNotifications.initialize(settings: initSettings);
+
+  await _localNotifications
+      .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+      ?.createNotificationChannel(_androidChannel);
+}
+
 void _setupFirebaseMessaging() {
   final messaging = FirebaseMessaging.instance;
 
-  // App launched from a terminated state via notification
   messaging.getInitialMessage().then((RemoteMessage? message) {
     if (message != null) {
       _handleNotificationPayload(message);
     }
   });
 
-  // App brought to foreground by tapping a notification
   FirebaseMessaging.onMessageOpenedApp.listen(_handleNotificationPayload);
 
-  // Notification received while app is in the foreground
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
     _handleNotificationPayload(message);
+    _showLocalNotification(message);
   });
 }
 
@@ -63,6 +87,32 @@ void _handleNotificationPayload(RemoteMessage message) {
   if (data.isNotEmpty) {
     debugPrint('  data:  $data');
   }
+}
+
+void _showLocalNotification(RemoteMessage message) {
+  final notification = message.notification;
+  if (notification == null) return;
+
+  _localNotifications.show(
+    id: notification.hashCode,
+    title: notification.title,
+    body: notification.body,
+    notificationDetails: NotificationDetails(
+      android: AndroidNotificationDetails(
+        _androidChannel.id,
+        _androidChannel.name,
+        channelDescription: _androidChannel.description,
+        importance: Importance.high,
+        priority: Priority.high,
+        icon: '@mipmap/ic_launcher',
+      ),
+      iOS: const DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+      ),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
