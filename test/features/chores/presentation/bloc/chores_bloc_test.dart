@@ -23,6 +23,7 @@ void main() {
   late ChoresBloc choresBloc;
 
   final tSingleChore = SingleChoreEntity(
+    createdBy: '1',
     id: '1',
     name: 'Test Chore',
     dateTime: DateTime(2024, 1, 1),
@@ -30,6 +31,7 @@ void main() {
   );
 
   final tGroupChore = GroupChoreEntity(
+    createdBy: '1',
     id: '1',
     dateTime: DateTime(2024, 1, 1),
     chores: [

@@ -28,12 +28,14 @@ void main() {
   test('should get list of single chores from repository', () async {
     final tChores = [
       SingleChoreEntity(
+        createdBy: '1',
         id: '1',
         name: 'Test Chore 1',
         dateTime: DateTime(2024, 1, 1),
         status: ChoreStatus.todo,
       ),
       SingleChoreEntity(
+        createdBy: '1',
         id: '2',
         name: 'Test Chore 2',
         dateTime: DateTime(2024, 1, 2),
@@ -52,6 +54,7 @@ void main() {
 
   test('should add a single chore to repository', () async {
     final tChore = SingleChoreEntity(
+      createdBy: '1',
       id: '1',
       name: 'Test Chore 1',
       dateTime: DateTime(2024, 1, 1),
@@ -69,6 +72,7 @@ void main() {
 
   test('should update a single chore in repository', () async {
     final tChore = SingleChoreEntity(
+      createdBy: '1',
       id: '1',
       name: 'Updated Chore',
       dateTime: DateTime(2024, 1, 1),
@@ -87,6 +91,7 @@ void main() {
 
   test('should delete a single chore from repository', () async {
     final tChore = SingleChoreEntity(
+      createdBy: '1',
       id: '1',
       name: 'Test Chore 1',
       dateTime: DateTime(2024, 1, 1),
@@ -106,6 +111,7 @@ void main() {
   test('should get list of group chores from repository', () async {
     final tGroupChores = [
       GroupChoreEntity(
+        createdBy: '1',
         id: '1',
         chores: [
           GroupChoreItem(
@@ -129,6 +135,7 @@ void main() {
 
   test('should add a group chore to repository', () async {
     final tGroupChore = GroupChoreEntity(
+      createdBy: '1',
       id: '1',
       chores: [
         GroupChoreItem(id: '1', name: 'Test Chore 1', status: ChoreStatus.todo),
@@ -148,6 +155,7 @@ void main() {
 
   test('should update a group chore in repository', () async {
     final tGroupChore = GroupChoreEntity(
+      createdBy: '1',
       id: '1',
       chores: [
         GroupChoreItem(id: '1', name: 'Test Chore 1', status: ChoreStatus.todo),
@@ -167,6 +175,7 @@ void main() {
 
   test('should delete a group chore from repository', () async {
     final tGroupChore = GroupChoreEntity(
+      createdBy: '1',
       id: '1',
       chores: [
         GroupChoreItem(id: '1', name: 'Test Chore 1', status: ChoreStatus.todo),

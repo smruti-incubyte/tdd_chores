@@ -21,6 +21,7 @@ void main() {
     name: 'Test Chore',
     dateTime: tDateTime,
     status: ChoreStatus.todo,
+    createdBy: '1',
   );
 
   final tSingleChoreModel = SingleChoreModel(
@@ -28,6 +29,7 @@ void main() {
     name: 'Test Chore',
     dateTime: tDateTime,
     status: ChoreStatus.todo,
+    createdBy: '1',
   );
   final tGroupChoreEntity = GroupChoreEntity(
     id: '1',
@@ -39,6 +41,7 @@ void main() {
         status: ChoreStatus.todo,
       ),
     ],
+    createdBy: '1',
   );
 
   final tGroupChoreModel = GroupChoreModel(
@@ -51,6 +54,7 @@ void main() {
         status: ChoreStatus.todo,
       ),
     ],
+    createdBy: '1',
   );
 
   setUp(() {

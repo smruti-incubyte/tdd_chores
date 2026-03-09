@@ -37,11 +37,12 @@ class GroupChoreEntity extends Equatable {
   final String id;
   final DateTime dateTime;
   final List<GroupChoreItem> chores;
-
+  final String createdBy;
   const GroupChoreEntity({
     required this.id,
     required this.dateTime,
     required this.chores,
+    required this.createdBy,
   });
 
   @override

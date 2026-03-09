@@ -5,26 +5,30 @@ class GroupChoreModel extends GroupChoreEntity {
     required super.id,
     required super.dateTime,
     required super.chores,
+    required super.createdBy,
   });
 
   factory GroupChoreModel.fromJson(Map<String, dynamic> json, {String? docId}) {
-    print('GroupChoreModel.fromJson456-${json}-${docId}');
     return GroupChoreModel(
       id: docId ?? '1',
       dateTime: json['dateTime'] != null
           ? DateTime.parse(json['dateTime'] as String)
           : DateTime.now(),
-      chores: (json['chores'] as List<dynamic>?)
+      chores:
+          (json['chores'] as List<dynamic>?)
               ?.map((e) => GroupChoreItem.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
+      createdBy: json['createdBy'] as String,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'dateTime': dateTime.toIso8601String(),
       'chores': chores.map((e) => e.toJson()).toList(),
+      'createdBy': createdBy,
     };
   }
 
@@ -32,11 +36,13 @@ class GroupChoreModel extends GroupChoreEntity {
     String? id,
     required DateTime dateTime,
     required List<GroupChoreItem> chores,
+    required String createdBy,
   }) {
     return GroupChoreModel(
       id: id ?? this.id,
       dateTime: dateTime,
       chores: chores,
+      createdBy: createdBy,
     );
   }
 
@@ -47,6 +53,7 @@ class GroupChoreModel extends GroupChoreEntity {
       chores: chore.chores
           .map((e) => GroupChoreItem(id: e.id, name: e.name, status: e.status))
           .toList(),
+      createdBy: chore.createdBy,
     );
   }
 
@@ -57,6 +64,7 @@ class GroupChoreModel extends GroupChoreEntity {
       chores: chores
           .map((e) => GroupChoreItem(id: e.id, name: e.name, status: e.status))
           .toList(),
+      createdBy: createdBy,
     );
   }
 }

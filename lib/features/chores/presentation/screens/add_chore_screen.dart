@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tdd_chores/core/enums/enums.dart';
@@ -66,6 +67,7 @@ class _AddChoreScreenState extends State<AddChoreScreen> {
   void _saveChore() {
     if (_formKey.currentState!.validate()) {
       final chore = SingleChoreEntity(
+        createdBy: FirebaseAuth.instance.currentUser?.uid ?? '',
         name: _nameController.text.trim(),
         dateTime: _selectedDateTime,
         status: ChoreStatus.todo,

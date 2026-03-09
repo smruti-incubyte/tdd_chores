@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart' show DateFormat;
@@ -53,6 +54,7 @@ class _GroupChoresScreenState extends State<GroupChoresScreen> {
         context.read<ChoresBloc>().add(
           UpdateGroupChoresEvent(
             groupChore: GroupChoreEntity(
+              createdBy: FirebaseAuth.instance.currentUser?.uid ?? '',
               id: widget.id ?? '1',
               dateTime: widget.initialDateTime,
               chores: _chores,
@@ -63,6 +65,7 @@ class _GroupChoresScreenState extends State<GroupChoresScreen> {
         context.read<ChoresBloc>().add(
           AddGroupChoresEvent(
             groupChore: GroupChoreEntity(
+              createdBy: FirebaseAuth.instance.currentUser?.uid ?? '',
               id: widget.id ?? '1',
               dateTime: widget.initialDateTime,
               chores: _chores,
@@ -285,6 +288,12 @@ class _GroupChoresScreenState extends State<GroupChoresScreen> {
                                           context.read<ChoresBloc>().add(
                                             UpdateGroupChoresEvent(
                                               groupChore: GroupChoreEntity(
+                                                createdBy:
+                                                    FirebaseAuth
+                                                        .instance
+                                                        .currentUser
+                                                        ?.uid ??
+                                                    '',
                                                 id: widget.id!,
                                                 dateTime:
                                                     widget.initialDateTime,

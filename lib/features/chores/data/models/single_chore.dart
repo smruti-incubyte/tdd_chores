@@ -7,6 +7,7 @@ class SingleChoreModel extends SingleChoreEntity {
     required super.name,
     required super.dateTime,
     required super.status,
+    required super.createdBy,
   });
 
   factory SingleChoreModel.fromJson(
@@ -18,6 +19,7 @@ class SingleChoreModel extends SingleChoreEntity {
       name: json['name'] as String,
       dateTime: DateTime.parse(json['dateTime'] as String),
       status: ChoreStatus.values.byName(json['status'] as String),
+      createdBy: json['createdBy'] as String,
     );
   }
 
@@ -26,6 +28,7 @@ class SingleChoreModel extends SingleChoreEntity {
       'name': name,
       'dateTime': dateTime.toIso8601String(),
       'status': status.name,
+      'createdBy': createdBy,
     };
   }
 
@@ -34,12 +37,14 @@ class SingleChoreModel extends SingleChoreEntity {
     required String name,
     required DateTime dateTime,
     required ChoreStatus status,
+    required String createdBy,
   }) {
     return SingleChoreModel(
       id: id ?? this.id,
       name: name,
       dateTime: dateTime,
       status: status,
+      createdBy: createdBy,
     );
   }
 
@@ -49,6 +54,7 @@ class SingleChoreModel extends SingleChoreEntity {
       name: chore.name,
       dateTime: chore.dateTime,
       status: chore.status,
+      createdBy: chore.createdBy,
     );
   }
 
@@ -58,6 +64,7 @@ class SingleChoreModel extends SingleChoreEntity {
       name: name,
       dateTime: dateTime,
       status: status,
+      createdBy: createdBy,
     );
   }
 }
