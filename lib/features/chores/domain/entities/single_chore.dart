@@ -7,6 +7,7 @@ class SingleChoreEntity extends Equatable {
   final DateTime dateTime;
   final ChoreStatus status;
   final String createdBy;
+  final String? photoUrl;
 
   const SingleChoreEntity({
     this.id,
@@ -14,7 +15,8 @@ class SingleChoreEntity extends Equatable {
     required this.dateTime,
     required this.status,
     required this.createdBy,
+    this.photoUrl,
   });
   @override
-  List<Object?> get props => [id, name, dateTime, status];
+  List<Object?> get props => [id, name, dateTime, status, photoUrl];
 }

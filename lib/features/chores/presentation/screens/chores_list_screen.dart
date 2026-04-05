@@ -100,6 +100,58 @@ class _ChoresListScreenState extends State<ChoresListScreen>
     await Future.delayed(const Duration(milliseconds: 500));
   }
 
+  Widget _buildSingleChoreThumbnail(SingleChoreEntity chore) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    Widget placeholder() {
+      return Container(
+        width: 64,
+        height: 64,
+        decoration: BoxDecoration(
+          color: colorScheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: colorScheme.outlineVariant),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.photo_outlined,
+              size: 22,
+              color: colorScheme.onSurfaceVariant,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'No photo',
+              style: TextStyle(
+                fontSize: 10,
+                color: colorScheme.onSurfaceVariant,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (chore.photoUrl == null) {
+      return placeholder();
+    }
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: SizedBox(
+        width: 64,
+        height: 64,
+        child: Image.network(
+          chore.photoUrl!,
+          fit: BoxFit.cover,
+          errorBuilder: (_, _, _) => placeholder(),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -159,24 +211,7 @@ class _ChoresListScreenState extends State<ChoresListScreen>
                                 padding: const EdgeInsets.all(12),
                                 child: Row(
                                   children: [
-                                    CircleAvatar(
-                                      backgroundColor:
-                                          chore.status == ChoreStatus.done
-                                          ? Colors.green[100]
-                                          : Theme.of(
-                                              context,
-                                            ).colorScheme.primaryContainer,
-                                      child: Icon(
-                                        chore.status == ChoreStatus.done
-                                            ? Icons.check_circle
-                                            : Icons.check_circle_outline,
-                                        color: chore.status == ChoreStatus.done
-                                            ? Colors.green[700]
-                                            : Theme.of(
-                                                context,
-                                              ).colorScheme.primary,
-                                      ),
-                                    ),
+                                    _buildSingleChoreThumbnail(chore),
                                     const SizedBox(width: 12),
                                     Expanded(
                                       child: Column(
@@ -282,6 +317,7 @@ class _ChoresListScreenState extends State<ChoresListScreen>
                                                   name: chore.name,
                                                   dateTime: chore.dateTime,
                                                   status: newStatus,
+                                                  photoUrl: chore.photoUrl,
                                                 );
                                             context.read<ChoresBloc>().add(
                                               UpdateSingleChoresEvent(

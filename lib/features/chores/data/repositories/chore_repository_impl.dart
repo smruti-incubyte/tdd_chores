@@ -35,6 +35,11 @@ class ChoreRepositoryImpl implements ChoreRepository {
   }
 
   @override
+  Future<void> deletePhoto(String photoUrl) async {
+    await choreFirebaseService.deletePhoto(photoUrl);
+  }
+
+  @override
   Future<List<GroupChoreEntity>> getGroupChores() async {
     final groupChores = await choreFirebaseService.getGroupChores();
     return groupChores.map((chore) => chore.toEntity()).toList();
@@ -44,6 +49,11 @@ class ChoreRepositoryImpl implements ChoreRepository {
   Future<List<SingleChoreEntity>> getSingleChores() async {
     final chores = await choreFirebaseService.getSingleChores();
     return chores.map((chore) => chore.toEntity()).toList();
+  }
+
+  @override
+  Future<String> savePhoto(String choreId, String photoPath) async {
+    return choreFirebaseService.savePhoto(choreId, photoPath);
   }
 
   @override

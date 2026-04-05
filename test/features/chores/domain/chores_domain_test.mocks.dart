@@ -6,6 +6,7 @@
 import 'dart:async' as _i3;
 
 import 'package:mockito/mockito.dart' as _i1;
+import 'package:mockito/src/dummies.dart' as _i6;
 import 'package:tdd_chores/features/chores/domain/entities/group_chore.dart'
     as _i5;
 import 'package:tdd_chores/features/chores/domain/entities/single_chore.dart'
@@ -109,4 +110,26 @@ class MockChoreRepository extends _i1.Mock implements _i2.ChoreRepository {
             returnValueForMissingStub: _i3.Future<void>.value(),
           )
           as _i3.Future<void>);
+
+  @override
+  _i3.Future<void> deletePhoto(String? photoUrl) =>
+      (super.noSuchMethod(
+            Invocation.method(#deletePhoto, [photoUrl]),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
+          )
+          as _i3.Future<void>);
+
+  @override
+  _i3.Future<String> savePhoto(String? choreId, String? photoPath) =>
+      (super.noSuchMethod(
+            Invocation.method(#savePhoto, [choreId, photoPath]),
+            returnValue: _i3.Future<String>.value(
+              _i6.dummyValue<String>(
+                this,
+                Invocation.method(#savePhoto, [choreId, photoPath]),
+              ),
+            ),
+          )
+          as _i3.Future<String>);
 }

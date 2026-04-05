@@ -6,10 +6,12 @@ import 'package:tdd_chores/features/chores/domain/entities/group_chore.dart';
 import 'package:tdd_chores/features/chores/domain/entities/single_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/add_group_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/add_single_chore.dart';
+import 'package:tdd_chores/features/chores/domain/usecases/delete_photo.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/delete_group_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/delete_single_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/get_group_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/get_single_chore.dart';
+import 'package:tdd_chores/features/chores/domain/usecases/save_photo.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/update_group_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/update_single_chore.dart';
 import 'package:tdd_chores/features/chores/presentation/bloc/chores_bloc.dart';
@@ -21,6 +23,8 @@ import '../../domain/chores_domain_test.mocks.dart';
 void main() {
   late MockChoreRepository mockChoreRepository;
   late ChoresBloc choresBloc;
+  const tPhotoUrl = 'https://example.com/photo.jpg';
+  const tPhotoPath = '/tmp/photo.jpg';
 
   final tSingleChore = SingleChoreEntity(
     createdBy: '1',
@@ -28,6 +32,15 @@ void main() {
     name: 'Test Chore',
     dateTime: DateTime(2024, 1, 1),
     status: ChoreStatus.todo,
+  );
+
+  final tSingleChoreWithPhoto = SingleChoreEntity(
+    createdBy: '1',
+    id: '1',
+    name: 'Test Chore',
+    dateTime: DateTime(2024, 1, 1),
+    status: ChoreStatus.todo,
+    photoUrl: tPhotoUrl,
   );
 
   final tGroupChore = GroupChoreEntity(
@@ -41,6 +54,7 @@ void main() {
 
   ChoresBloc makeBloc() => ChoresBloc(
     deleteGroupChore: DeleteGroupChore(repository: mockChoreRepository),
+    deletePhoto: DeletePhoto(repository: mockChoreRepository),
     addGroupChore: AddGroupChore(repository: mockChoreRepository),
     updateGroupChore: UpdateGroupChore(repository: mockChoreRepository),
     deleteSingleChore: DeleteSingleChore(repository: mockChoreRepository),
@@ -48,6 +62,7 @@ void main() {
     getSingleChores: GetSingleChores(repository: mockChoreRepository),
     addSingleChore: AddSingleChore(repository: mockChoreRepository),
     getGroupChores: GetGroupChores(repository: mockChoreRepository),
+    savePhoto: SavePhoto(repository: mockChoreRepository),
   );
 
   setUp(() {
@@ -157,17 +172,49 @@ void main() {
 
   group('AddSingleChoresEvent', () {
     blocTest<ChoresBloc, ChoresState>(
-      'emits [ChoresLoaded] with refreshed singleChores on success',
+      'emits [ChoresLoaded] with refreshed singleChores on success when photo is selected',
       build: () {
-        return choresBloc;
+        when(
+          mockChoreRepository.savePhoto(tSingleChore.id!, tPhotoPath),
+        ).thenAnswer((_) async => tPhotoUrl);
+        when(
+          mockChoreRepository.addSingleChore(tSingleChoreWithPhoto),
+        ).thenAnswer((_) async => {});
+        when(
+          mockChoreRepository.getSingleChores(),
+        ).thenAnswer((_) async => [tSingleChoreWithPhoto]);
+        return makeBloc();
       },
       act: (bloc) {
+        return bloc.add(
+          AddSingleChoresEvent(chore: tSingleChore, photoPath: tPhotoPath),
+        );
+      },
+      expect: () => [
+        ChoresLoading(),
+        ChoresLoaded(singleChores: [tSingleChoreWithPhoto], groupChores: []),
+      ],
+      verify: (bloc) {
+        verifyInOrder([
+          mockChoreRepository.savePhoto(tSingleChore.id!, tPhotoPath),
+          mockChoreRepository.addSingleChore(tSingleChoreWithPhoto),
+          mockChoreRepository.getSingleChores(),
+        ]);
+      },
+    );
+
+    blocTest<ChoresBloc, ChoresState>(
+      'emits [ChoresLoaded] with refreshed singleChores on success when no photo is selected',
+      build: () {
         when(
           mockChoreRepository.addSingleChore(tSingleChore),
         ).thenAnswer((_) async => {});
         when(
           mockChoreRepository.getSingleChores(),
         ).thenAnswer((_) async => [tSingleChore]);
+        return makeBloc();
+      },
+      act: (bloc) {
         return bloc.add(AddSingleChoresEvent(chore: tSingleChore));
       },
       expect: () => [
@@ -177,34 +224,65 @@ void main() {
       verify: (bloc) {
         verify(mockChoreRepository.addSingleChore(tSingleChore)).called(1);
         verify(mockChoreRepository.getSingleChores()).called(1);
+        verifyNever(mockChoreRepository.savePhoto(any, any));
       },
     );
 
     blocTest<ChoresBloc, ChoresState>(
-      'emits [ChoresError] when addSingleChore throws',
+      'emits [ChoresError] when savePhoto throws',
       build: () {
         when(
-          mockChoreRepository.addSingleChore(any),
-        ).thenThrow(Exception('add failed'));
-        return choresBloc;
+          mockChoreRepository.savePhoto(tSingleChore.id!, tPhotoPath),
+        ).thenThrow(Exception('save photo failed'));
+        return makeBloc();
       },
       act: (bloc) {
+        return bloc.add(
+          AddSingleChoresEvent(chore: tSingleChore, photoPath: tPhotoPath),
+        );
+      },
+      expect: () => [
+        ChoresLoading(),
+        ChoresError('save photo failed', message: 'Error adding single chore'),
+      ],
+      verify: (bloc) {
+        verify(
+          mockChoreRepository.savePhoto(tSingleChore.id!, tPhotoPath),
+        ).called(1);
+        verifyNever(mockChoreRepository.addSingleChore(any));
+      },
+    );
+
+    blocTest<ChoresBloc, ChoresState>(
+      'emits [ChoresError] when addSingleChore throws after savePhoto succeeds',
+      build: () {
         when(
-          mockChoreRepository.addSingleChore(tSingleChore),
+          mockChoreRepository.savePhoto(tSingleChore.id!, tPhotoPath),
+        ).thenAnswer((_) async => tPhotoUrl);
+        when(
+          mockChoreRepository.addSingleChore(tSingleChoreWithPhoto),
         ).thenThrow(Exception('add failed'));
-        return bloc.add(AddSingleChoresEvent(chore: tSingleChore));
+        return makeBloc();
+      },
+      act: (bloc) {
+        return bloc.add(
+          AddSingleChoresEvent(chore: tSingleChore, photoPath: tPhotoPath),
+        );
       },
       expect: () => [
         ChoresLoading(),
         ChoresError('add failed', message: 'Error adding single chore'),
       ],
       verify: (bloc) {
-        verify(mockChoreRepository.addSingleChore(tSingleChore)).called(1);
+        verifyInOrder([
+          mockChoreRepository.savePhoto(tSingleChore.id!, tPhotoPath),
+          mockChoreRepository.addSingleChore(tSingleChoreWithPhoto),
+        ]);
       },
     );
 
     blocTest<ChoresBloc, ChoresState>(
-      'verifies addSingleChore is called with correct params',
+      'verifies addSingleChore is called with correct params when no photo is selected',
       build: () {
         when(
           mockChoreRepository.addSingleChore(tSingleChore),
@@ -212,7 +290,7 @@ void main() {
         when(
           mockChoreRepository.getSingleChores(),
         ).thenAnswer((_) async => [tSingleChore]);
-        return choresBloc;
+        return makeBloc();
       },
       act: (bloc) {
         return bloc.add(AddSingleChoresEvent(chore: tSingleChore));
@@ -220,6 +298,7 @@ void main() {
       verify: (_) {
         verify(mockChoreRepository.addSingleChore(tSingleChore)).called(1);
         verify(mockChoreRepository.getSingleChores()).called(1);
+        verifyNever(mockChoreRepository.savePhoto(any, any));
       },
     );
   });
@@ -425,51 +504,108 @@ void main() {
 
   group('DeleteSingleChoresEvent', () {
     blocTest<ChoresBloc, ChoresState>(
-      'emits [ChoresLoaded] with refreshed singleChores on success',
+      'emits [ChoresLoaded] with refreshed singleChores on success when photoUrl is present',
+      build: () {
+        when(
+          mockChoreRepository.deletePhoto(tPhotoUrl),
+        ).thenAnswer((_) async => {});
+        when(
+          mockChoreRepository.deleteSingleChore(tSingleChoreWithPhoto),
+        ).thenAnswer((_) async => {});
+        when(mockChoreRepository.getSingleChores()).thenAnswer((_) async => []);
+        return makeBloc();
+      },
+      act: (bloc) {
+        return bloc.add(DeleteSingleChoresEvent(chore: tSingleChoreWithPhoto));
+      },
+      expect: () => [
+        ChoresLoading(),
+        const ChoresLoaded(singleChores: [], groupChores: []),
+      ],
+      verify: (bloc) {
+        verifyInOrder([
+          mockChoreRepository.deletePhoto(tPhotoUrl),
+          mockChoreRepository.deleteSingleChore(tSingleChoreWithPhoto),
+          mockChoreRepository.getSingleChores(),
+        ]);
+      },
+    );
+
+    blocTest<ChoresBloc, ChoresState>(
+      'emits [ChoresLoaded] with refreshed singleChores on success when photoUrl is null',
       build: () {
         when(
           mockChoreRepository.deleteSingleChore(tSingleChore),
         ).thenAnswer((_) async => {});
-        when(
-          mockChoreRepository.getSingleChores(),
-        ).thenAnswer((_) async => [tSingleChore]);
-        return choresBloc;
+        when(mockChoreRepository.getSingleChores()).thenAnswer((_) async => []);
+        return makeBloc();
       },
       act: (bloc) {
         return bloc.add(DeleteSingleChoresEvent(chore: tSingleChore));
       },
       expect: () => [
         ChoresLoading(),
-        ChoresLoaded(singleChores: [tSingleChore], groupChores: []),
+        const ChoresLoaded(singleChores: [], groupChores: []),
       ],
       verify: (bloc) {
         verify(mockChoreRepository.deleteSingleChore(tSingleChore)).called(1);
         verify(mockChoreRepository.getSingleChores()).called(1);
+        verifyNever(mockChoreRepository.deletePhoto(any));
       },
     );
 
     blocTest<ChoresBloc, ChoresState>(
-      'emits [ChoresError] when deleteSingleChore throws',
+      'emits [ChoresError] when deletePhoto throws',
       build: () {
         when(
-          mockChoreRepository.deleteSingleChore(tSingleChore),
-        ).thenThrow(Exception('delete failed'));
-        return choresBloc;
+          mockChoreRepository.deletePhoto(tPhotoUrl),
+        ).thenThrow(Exception('delete photo failed'));
+        return makeBloc();
       },
       act: (bloc) {
-        return bloc.add(DeleteSingleChoresEvent(chore: tSingleChore));
+        return bloc.add(DeleteSingleChoresEvent(chore: tSingleChoreWithPhoto));
+      },
+      expect: () => [
+        ChoresLoading(),
+        ChoresError(
+          'delete photo failed',
+          message: 'Error deleting single chore',
+        ),
+      ],
+      verify: (bloc) {
+        verify(mockChoreRepository.deletePhoto(tPhotoUrl)).called(1);
+        verifyNever(mockChoreRepository.deleteSingleChore(any));
+      },
+    );
+
+    blocTest<ChoresBloc, ChoresState>(
+      'emits [ChoresError] when deleteSingleChore throws after deletePhoto succeeds',
+      build: () {
+        when(
+          mockChoreRepository.deletePhoto(tPhotoUrl),
+        ).thenAnswer((_) async => {});
+        when(
+          mockChoreRepository.deleteSingleChore(tSingleChoreWithPhoto),
+        ).thenThrow(Exception('delete failed'));
+        return makeBloc();
+      },
+      act: (bloc) {
+        return bloc.add(DeleteSingleChoresEvent(chore: tSingleChoreWithPhoto));
       },
       expect: () => [
         ChoresLoading(),
         ChoresError('delete failed', message: 'Error deleting single chore'),
       ],
       verify: (bloc) {
-        verify(mockChoreRepository.deleteSingleChore(tSingleChore)).called(1);
+        verifyInOrder([
+          mockChoreRepository.deletePhoto(tPhotoUrl),
+          mockChoreRepository.deleteSingleChore(tSingleChoreWithPhoto),
+        ]);
       },
     );
 
     blocTest<ChoresBloc, ChoresState>(
-      'verifies deleteSingleChore is called with correct params',
+      'verifies deleteSingleChore is called with correct params when photoUrl is null',
       build: () {
         when(
           mockChoreRepository.deleteSingleChore(any),
@@ -477,7 +613,7 @@ void main() {
         when(
           mockChoreRepository.getSingleChores(),
         ).thenAnswer((_) async => [tSingleChore]);
-        return choresBloc;
+        return makeBloc();
       },
       act: (bloc) {
         return bloc.add(DeleteSingleChoresEvent(chore: tSingleChore));
@@ -485,6 +621,7 @@ void main() {
       verify: (_) {
         verify(mockChoreRepository.deleteSingleChore(tSingleChore)).called(1);
         verify(mockChoreRepository.getSingleChores()).called(1);
+        verifyNever(mockChoreRepository.deletePhoto(any));
       },
     );
   });

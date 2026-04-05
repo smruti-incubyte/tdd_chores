@@ -1,12 +1,16 @@
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:tdd_chores/core/enums/enums.dart';
 import 'package:tdd_chores/core/utils/date_time_formatter.dart';
 import 'package:tdd_chores/features/chores/domain/entities/single_chore.dart';
 import 'package:tdd_chores/features/chores/presentation/bloc/chores_bloc.dart';
 import 'package:tdd_chores/features/chores/presentation/bloc/chores_events.dart';
 import 'package:tdd_chores/features/chores/presentation/bloc/chores_states.dart';
+import 'package:uuid/uuid.dart';
 
 class AddChoreScreen extends StatefulWidget {
   const AddChoreScreen({super.key});
@@ -18,7 +22,11 @@ class AddChoreScreen extends StatefulWidget {
 class _AddChoreScreenState extends State<AddChoreScreen> {
   final _nameController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  final _imagePicker = ImagePicker();
+  final _choreId = const Uuid().v4();
   DateTime _selectedDateTime = DateTime.now();
+  String? _selectedPhotoPath;
+  bool _isSubmitting = false;
 
   @override
   void dispose() {
@@ -64,16 +72,57 @@ class _AddChoreScreenState extends State<AddChoreScreen> {
     }
   }
 
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final image = await _imagePicker.pickImage(
+        source: source,
+        imageQuality: 85,
+      );
+
+      if (image == null || !mounted) {
+        return;
+      }
+
+      setState(() {
+        _selectedPhotoPath = image.path;
+      });
+    } catch (e) {
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Unable to pick image: ${e.toString()}')),
+      );
+    }
+  }
+
+  void _removePhoto() {
+    setState(() {
+      _selectedPhotoPath = null;
+    });
+  }
+
   void _saveChore() {
+    if (_isSubmitting) {
+      return;
+    }
+
     if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isSubmitting = true;
+      });
+
       final chore = SingleChoreEntity(
+        id: _choreId,
         createdBy: FirebaseAuth.instance.currentUser?.uid ?? '',
         name: _nameController.text.trim(),
         dateTime: _selectedDateTime,
         status: ChoreStatus.todo,
       );
-      context.read<ChoresBloc>().add(AddSingleChoresEvent(chore: chore));
-      Navigator.of(context).pop();
+      context.read<ChoresBloc>().add(
+        AddSingleChoresEvent(chore: chore, photoPath: _selectedPhotoPath),
+      );
     }
   }
 
@@ -84,27 +133,46 @@ class _AddChoreScreenState extends State<AddChoreScreen> {
         title: const Text('Add Chore'),
         actions: [
           TextButton(
-            onPressed: _saveChore,
-            child: const Text(
-              'Save',
+            onPressed: _isSubmitting ? null : _saveChore,
+            child: Text(
+              _isSubmitting ? 'Saving...' : 'Save',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
           ),
         ],
       ),
-      body: BlocBuilder<ChoresBloc, ChoresState>(
-        builder: (context, state) {
-          if (state is ChoresLoading) {
-            return const Center(child: CircularProgressIndicator());
+      body: BlocConsumer<ChoresBloc, ChoresState>(
+        listener: (context, state) {
+          if (!_isSubmitting) {
+            return;
           }
+
+          if (state is ChoresLoaded) {
+            Navigator.of(context).pop();
+            return;
+          }
+
           if (state is ChoresError) {
-            return Center(child: Text(state.message));
+            setState(() {
+              _isSubmitting = false;
+            });
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
           }
+        },
+        builder: (context, state) {
+          final isSaving = _isSubmitting && state is ChoresLoading;
+
           return Form(
             key: _formKey,
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
+                if (isSaving) ...[
+                  const LinearProgressIndicator(),
+                  const SizedBox(height: 16),
+                ],
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.all(16),
@@ -141,6 +209,88 @@ class _AddChoreScreenState extends State<AddChoreScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Photo (Optional)',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Container(
+                            height: 180,
+                            width: double.infinity,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.surfaceContainerHighest,
+                            child: _selectedPhotoPath == null
+                                ? Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.photo_outlined,
+                                        size: 40,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'No photo selected',
+                                        style: TextStyle(
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                : Image.file(
+                                    File(_selectedPhotoPath!),
+                                    fit: BoxFit.cover,
+                                  ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Wrap(
+                          spacing: 12,
+                          runSpacing: 12,
+                          children: [
+                            OutlinedButton.icon(
+                              onPressed: isSaving
+                                  ? null
+                                  : () => _pickImage(ImageSource.gallery),
+                              icon: const Icon(Icons.photo_library_outlined),
+                              label: const Text('Gallery'),
+                            ),
+                            OutlinedButton.icon(
+                              onPressed: isSaving
+                                  ? null
+                                  : () => _pickImage(ImageSource.camera),
+                              icon: const Icon(Icons.photo_camera_outlined),
+                              label: const Text('Camera'),
+                            ),
+                            if (_selectedPhotoPath != null)
+                              TextButton.icon(
+                                onPressed: isSaving ? null : _removePhoto,
+                                icon: const Icon(Icons.delete_outline),
+                                label: const Text('Remove'),
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.all(16),
@@ -192,9 +342,9 @@ class _AddChoreScreenState extends State<AddChoreScreen> {
                 ),
                 const SizedBox(height: 24),
                 FilledButton.icon(
-                  onPressed: _saveChore,
-                  icon: const Icon(Icons.add),
-                  label: const Text('Add Chore'),
+                  onPressed: isSaving ? null : _saveChore,
+                  icon: Icon(isSaving ? Icons.hourglass_top : Icons.add),
+                  label: Text(isSaving ? 'Saving...' : 'Add Chore'),
                   style: FilledButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),

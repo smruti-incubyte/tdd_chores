@@ -8,6 +8,7 @@ class SingleChoreModel extends SingleChoreEntity {
     required super.dateTime,
     required super.status,
     required super.createdBy,
+    super.photoUrl,
   });
 
   factory SingleChoreModel.fromJson(
@@ -20,6 +21,7 @@ class SingleChoreModel extends SingleChoreEntity {
       dateTime: DateTime.parse(json['dateTime'] as String),
       status: ChoreStatus.values.byName(json['status'] as String),
       createdBy: json['createdBy'] as String,
+      photoUrl: json['photoUrl'] as String?,
     );
   }
 
@@ -29,6 +31,7 @@ class SingleChoreModel extends SingleChoreEntity {
       'dateTime': dateTime.toIso8601String(),
       'status': status.name,
       'createdBy': createdBy,
+      if (photoUrl != null) 'photoUrl': photoUrl,
     };
   }
 
@@ -38,6 +41,7 @@ class SingleChoreModel extends SingleChoreEntity {
     required DateTime dateTime,
     required ChoreStatus status,
     required String createdBy,
+    String? photoUrl,
   }) {
     return SingleChoreModel(
       id: id ?? this.id,
@@ -45,6 +49,7 @@ class SingleChoreModel extends SingleChoreEntity {
       dateTime: dateTime,
       status: status,
       createdBy: createdBy,
+      photoUrl: photoUrl ?? this.photoUrl,
     );
   }
 
@@ -55,6 +60,7 @@ class SingleChoreModel extends SingleChoreEntity {
       dateTime: chore.dateTime,
       status: chore.status,
       createdBy: chore.createdBy,
+      photoUrl: chore.photoUrl,
     );
   }
 
@@ -65,6 +71,7 @@ class SingleChoreModel extends SingleChoreEntity {
       dateTime: dateTime,
       status: status,
       createdBy: createdBy,
+      photoUrl: photoUrl,
     );
   }
 }

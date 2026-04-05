@@ -39,6 +39,10 @@
 		<string>722269513790-q101j2hjivv2ev66vmvli7qr9f807f4k.apps.googleusercontent.com</string>
 		<key>LSRequiresIPhoneOS</key>
 		<true/>
+		<key>NSCameraUsageDescription</key>
+		<string>Allow camera access so you can attach a photo to a chore.</string>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>Allow photo library access so you can attach an existing image to a chore.</string>
 		<key>UIApplicationSceneManifest</key>
 		<dict>
 			<key>UIApplicationSupportsMultipleScenes</key>

@@ -8,10 +8,12 @@ import 'package:tdd_chores/features/chores/domain/entities/single_chore.dart';
 import 'package:tdd_chores/features/chores/domain/repositories/repository.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/add_group_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/add_single_chore.dart';
+import 'package:tdd_chores/features/chores/domain/usecases/delete_photo.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/delete_group_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/delete_single_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/get_group_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/get_single_chore.dart';
+import 'package:tdd_chores/features/chores/domain/usecases/save_photo.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/update_group_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/update_single_chore.dart';
 
@@ -105,6 +107,37 @@ void main() {
     final useCase = DeleteSingleChore(repository: mockChoreRepository);
     await useCase(DeleteSingleChoreParams(chore: tChore));
     verify(mockChoreRepository.deleteSingleChore(tChore));
+    verifyNoMoreInteractions(mockChoreRepository);
+  });
+
+  test('should save a photo through repository', () async {
+    const tChoreId = '1';
+    const tPhotoPath = '/tmp/photo.jpg';
+    const tPhotoUrl = 'https://example.com/photo.jpg';
+
+    when(mockChoreRepository.savePhoto(tChoreId, tPhotoPath)).thenAnswer(
+      (_) async => tPhotoUrl,
+    );
+
+    final useCase = SavePhoto(repository: mockChoreRepository);
+    final result = await useCase(
+      const SavePhotoParams(choreId: tChoreId, photoPath: tPhotoPath),
+    );
+
+    expect(result, equals(tPhotoUrl));
+    verify(mockChoreRepository.savePhoto(tChoreId, tPhotoPath));
+    verifyNoMoreInteractions(mockChoreRepository);
+  });
+
+  test('should delete a photo through repository', () async {
+    const tPhotoUrl = 'https://example.com/photo.jpg';
+
+    when(mockChoreRepository.deletePhoto(tPhotoUrl)).thenAnswer((_) async => {});
+
+    final useCase = DeletePhoto(repository: mockChoreRepository);
+    await useCase(const DeletePhotoParams(photoUrl: tPhotoUrl));
+
+    verify(mockChoreRepository.deletePhoto(tPhotoUrl));
     verifyNoMoreInteractions(mockChoreRepository);
   });
 

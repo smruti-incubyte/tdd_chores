@@ -10,4 +10,6 @@ abstract class ChoreRepository {
   Future<void> addGroupChore(GroupChoreEntity groupChore);
   Future<void> updateGroupChore(GroupChoreEntity groupChore);
   Future<void> deleteGroupChore(GroupChoreEntity groupChore);
+  Future<void> deletePhoto(String photoUrl);
+  Future<String> savePhoto(String choreId, String photoPath);
 }

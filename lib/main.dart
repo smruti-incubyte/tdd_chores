@@ -9,6 +9,7 @@ import 'package:tdd_chores/features/auth/presentation/login_screen.dart';
 import 'package:tdd_chores/features/chores/data/datasources/remote/chore_firebase_service.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/get_group_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/get_single_chore.dart';
+import 'package:tdd_chores/features/chores/domain/usecases/save_photo.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/update_group_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/update_single_chore.dart';
 import 'package:tdd_chores/firebase_options.dart';
@@ -21,6 +22,7 @@ import 'features/chores/data/repositories/chore_repository_impl.dart';
 
 import 'features/chores/domain/usecases/add_single_chore.dart';
 import 'features/chores/domain/usecases/add_group_chore.dart';
+import 'features/chores/domain/usecases/delete_photo.dart';
 import 'features/chores/domain/usecases/delete_single_chore.dart';
 import 'features/chores/domain/usecases/delete_group_chore.dart';
 
@@ -44,7 +46,9 @@ void main() async {
 }
 
 Future<void> _setupLocalNotifications() async {
-  const androidSettings = AndroidInitializationSettings('@drawable/ic_stat_notification');
+  const androidSettings = AndroidInitializationSettings(
+    '@drawable/ic_stat_notification',
+  );
   const darwinSettings = DarwinInitializationSettings();
   const initSettings = InitializationSettings(
     android: androidSettings,
@@ -54,7 +58,8 @@ Future<void> _setupLocalNotifications() async {
 
   await _localNotifications
       .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>()
+        AndroidFlutterLocalNotificationsPlugin
+      >()
       ?.createNotificationChannel(_androidChannel);
 }
 
@@ -131,9 +136,11 @@ class MyApp extends StatelessWidget {
         addSingleChore: AddSingleChore(repository: repository),
         addGroupChore: AddGroupChore(repository: repository),
         deleteSingleChore: DeleteSingleChore(repository: repository),
+        deletePhoto: DeletePhoto(repository: repository),
         deleteGroupChore: DeleteGroupChore(repository: repository),
         updateSingleChore: UpdateSingleChore(repository: repository),
         updateGroupChore: UpdateGroupChore(repository: repository),
+        savePhoto: SavePhoto(repository: repository),
       ),
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

@@ -2,10 +2,12 @@ import 'package:tdd_chores/core/usecase/usecase.dart';
 import 'package:tdd_chores/features/chores/domain/entities/single_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/add_group_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/add_single_chore.dart';
+import 'package:tdd_chores/features/chores/domain/usecases/delete_photo.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/delete_group_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/delete_single_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/get_group_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/get_single_chore.dart';
+import 'package:tdd_chores/features/chores/domain/usecases/save_photo.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/update_group_chore.dart';
 import 'package:tdd_chores/features/chores/domain/usecases/update_single_chore.dart';
 import 'package:tdd_chores/features/chores/presentation/bloc/chores_events.dart';
@@ -17,6 +19,8 @@ class ChoresBloc extends Bloc<ChoresEvent, ChoresState> {
   final AddSingleChore addSingleChore;
   final UpdateSingleChore updateSingleChore;
   final DeleteSingleChore deleteSingleChore;
+  final SavePhoto savePhoto;
+  final DeletePhoto deletePhoto;
   final GetGroupChores getGroupChores;
   final AddGroupChore addGroupChore;
   final UpdateGroupChore updateGroupChore;
@@ -26,6 +30,8 @@ class ChoresBloc extends Bloc<ChoresEvent, ChoresState> {
     required this.addSingleChore,
     required this.updateSingleChore,
     required this.deleteSingleChore,
+    required this.savePhoto,
+    required this.deletePhoto,
     required this.getGroupChores,
     required this.addGroupChore,
     required this.updateGroupChore,
@@ -60,7 +66,8 @@ class ChoresBloc extends Bloc<ChoresEvent, ChoresState> {
   ) async {
     try {
       emit(ChoresLoading());
-      await addSingleChore(AddSingleChoreParams(chore: event.chore));
+      final choreToSave = await _buildSingleChoreForSave(event);
+      await addSingleChore(AddSingleChoreParams(chore: choreToSave));
       final singleChores = await getSingleChores(NoParams());
       emit(ChoresLoaded(singleChores: singleChores, groupChores: []));
     } catch (e) {
@@ -88,6 +95,9 @@ class ChoresBloc extends Bloc<ChoresEvent, ChoresState> {
   ) async {
     try {
       emit(ChoresLoading());
+      if (event.chore.photoUrl != null) {
+        await deletePhoto(DeletePhotoParams(photoUrl: event.chore.photoUrl!));
+      }
       await deleteSingleChore(DeleteSingleChoreParams(chore: event.chore));
       final singleChores = await getSingleChores(NoParams());
       emit(ChoresLoaded(singleChores: singleChores, groupChores: []));
@@ -179,5 +189,26 @@ class ChoresBloc extends Bloc<ChoresEvent, ChoresState> {
     } catch (e) {
       emit(ChoresError(e.toString(), message: 'Error deleting group chore'));
     }
+  }
+
+  Future<SingleChoreEntity> _buildSingleChoreForSave(
+    AddSingleChoresEvent event,
+  ) async {
+    if (event.photoPath == null) {
+      return event.chore;
+    }
+
+    final photoUrl = await savePhoto(
+      SavePhotoParams(choreId: event.chore.id!, photoPath: event.photoPath!),
+    );
+
+    return SingleChoreEntity(
+      id: event.chore.id,
+      name: event.chore.name,
+      dateTime: event.chore.dateTime,
+      status: event.chore.status,
+      createdBy: event.chore.createdBy,
+      photoUrl: photoUrl,
+    );
   }
 }

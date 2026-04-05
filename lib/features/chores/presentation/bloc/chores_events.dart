@@ -13,9 +13,11 @@ class GetSingleChoresEvent extends ChoresEvent {}
 
 class AddSingleChoresEvent extends ChoresEvent {
   final SingleChoreEntity chore;
-  const AddSingleChoresEvent({required this.chore});
+  final String? photoPath;
+
+  const AddSingleChoresEvent({required this.chore, this.photoPath});
   @override
-  List<Object?> get props => [chore];
+  List<Object?> get props => [chore, photoPath];
 }
 
 class UpdateSingleChoresEvent extends ChoresEvent {

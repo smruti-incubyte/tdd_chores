@@ -9,12 +9,14 @@ import 'package:tdd_chores/features/chores/data/repositories/chore_repository_im
 import 'package:tdd_chores/features/chores/domain/entities/group_chore.dart';
 import 'package:tdd_chores/features/chores/domain/entities/single_chore.dart';
 
-import 'chore_repository_impl.mocks.dart';
+import 'chore_repository_impl_test.mocks.dart';
 
 @GenerateMocks([ChoreFirebaseService])
 void main() {
   late MockChoreFirebaseService mockChoreFirebaseService;
   final tDateTime = DateTime(2024, 1, 1);
+  const tPhotoUrl = 'https://example.com/photo.jpg';
+  const tPhotoPath = '/tmp/photo.jpg';
 
   final tSingleChoreEntity = SingleChoreEntity(
     id: '1',
@@ -22,6 +24,7 @@ void main() {
     dateTime: tDateTime,
     status: ChoreStatus.todo,
     createdBy: '1',
+    photoUrl: tPhotoUrl,
   );
 
   final tSingleChoreModel = SingleChoreModel(
@@ -30,6 +33,7 @@ void main() {
     dateTime: tDateTime,
     status: ChoreStatus.todo,
     createdBy: '1',
+    photoUrl: tPhotoUrl,
   );
   final tGroupChoreEntity = GroupChoreEntity(
     id: '1',
@@ -60,6 +64,7 @@ void main() {
   setUp(() {
     mockChoreFirebaseService = MockChoreFirebaseService();
   });
+
   group('addSingleChore', () {
     test('should convert entity to model and call service', () async {
       when(
@@ -101,6 +106,7 @@ void main() {
         expect(result, equals([tSingleChoreEntity]));
       },
     );
+
     test('should throw an exception if the service throws', () async {
       when(
         mockChoreFirebaseService.getSingleChores(),
@@ -173,6 +179,45 @@ void main() {
     });
   });
 
+  group('savePhoto', () {
+    test(
+      'should return the download url from mocked ChoreFirebaseService for the provided choreId and photoPath',
+      () async {
+        when(
+          mockChoreFirebaseService.savePhoto('1', tPhotoPath),
+        ).thenAnswer((_) async => tPhotoUrl);
+        final repository = ChoreRepositoryImpl(
+          choreFirebaseService: mockChoreFirebaseService,
+        );
+
+        final result = await repository.savePhoto('1', tPhotoPath);
+
+        expect(result, equals(tPhotoUrl));
+        verify(mockChoreFirebaseService.savePhoto('1', tPhotoPath));
+        verifyNoMoreInteractions(mockChoreFirebaseService);
+      },
+    );
+  });
+
+  group('deletePhoto', () {
+    test(
+      'should delegate photo deletion to mocked ChoreFirebaseService with the provided photoUrl',
+      () async {
+        when(
+          mockChoreFirebaseService.deletePhoto(tPhotoUrl),
+        ).thenAnswer((_) async => {});
+        final repository = ChoreRepositoryImpl(
+          choreFirebaseService: mockChoreFirebaseService,
+        );
+
+        await repository.deletePhoto(tPhotoUrl);
+
+        verify(mockChoreFirebaseService.deletePhoto(tPhotoUrl));
+        verifyNoMoreInteractions(mockChoreFirebaseService);
+      },
+    );
+  });
+
   group('getGroupChores', () {
     test(
       'should return list of group chores entities from service models',
@@ -187,6 +232,7 @@ void main() {
         expect(result, equals([tGroupChoreEntity]));
       },
     );
+
     test('should throw an exception if the service throws', () async {
       when(
         mockChoreFirebaseService.getGroupChores(),
@@ -212,6 +258,7 @@ void main() {
       verify(mockChoreFirebaseService.addGroupChore(tGroupChoreModel));
       verifyNoMoreInteractions(mockChoreFirebaseService);
     });
+
     test('should throw an exception if the service throws', () async {
       when(
         mockChoreFirebaseService.addGroupChore(tGroupChoreModel),
@@ -240,6 +287,7 @@ void main() {
       verify(mockChoreFirebaseService.updateGroupChore(tGroupChoreModel));
       verifyNoMoreInteractions(mockChoreFirebaseService);
     });
+
     test('should throw an exception if the service throws', () async {
       when(
         mockChoreFirebaseService.updateGroupChore(tGroupChoreModel),
@@ -268,6 +316,7 @@ void main() {
       verify(mockChoreFirebaseService.deleteGroupChore(tGroupChoreModel));
       verifyNoMoreInteractions(mockChoreFirebaseService);
     });
+
     test('should throw an exception if the service throws', () async {
       when(
         mockChoreFirebaseService.deleteGroupChore(tGroupChoreModel),
