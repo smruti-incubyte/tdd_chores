@@ -9,6 +9,7 @@ import 'package:tdd_chores/features/chores/presentation/bloc/chores_bloc.dart';
 import 'package:tdd_chores/features/chores/presentation/bloc/chores_events.dart';
 import 'package:tdd_chores/features/chores/presentation/bloc/chores_states.dart';
 import 'package:tdd_chores/features/chores/presentation/screens/add_chore_screen.dart';
+import 'package:tdd_chores/features/chores/presentation/screens/add_chore_photo_screen.dart';
 import 'package:tdd_chores/features/chores/presentation/screens/create_group_screen.dart';
 import 'package:tdd_chores/features/chores/presentation/screens/group_chores_screen.dart';
 import 'package:tdd_chores/features/chores/presentation/widgets/empty_chores.dart';
@@ -74,6 +75,19 @@ class _ChoresListScreenState extends State<ChoresListScreen>
           initialDateTime: group.dateTime,
           existingChores: group.chores,
         ),
+      ),
+    );
+  }
+
+  Future<void> _openAddPhotoScreen(SingleChoreEntity chore) async {
+    if (chore.photoUrl != null) {
+      return;
+    }
+
+    await Navigator.push<SingleChoreEntity>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddChorePhotoScreen(chore: chore),
       ),
     );
   }
@@ -205,138 +219,156 @@ class _ChoresListScreenState extends State<ChoresListScreen>
                           padding: const EdgeInsets.all(16),
                           itemBuilder: (context, index) {
                             final chore = state.singleChores[index];
+                            final canAddPhoto = chore.photoUrl == null;
+
                             return Card(
                               margin: const EdgeInsets.only(bottom: 12),
-                              child: Padding(
-                                padding: const EdgeInsets.all(12),
-                                child: Row(
-                                  children: [
-                                    _buildSingleChoreThumbnail(chore),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            chore.name,
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w500,
-                                              decoration:
-                                                  chore.status ==
-                                                      ChoreStatus.done
-                                                  ? TextDecoration.lineThrough
-                                                  : null,
-                                              color:
-                                                  chore.status ==
-                                                      ChoreStatus.done
-                                                  ? Colors.grey[600]
-                                                  : null,
+                              child: InkWell(
+                                onTap: canAddPhoto
+                                    ? () => _openAddPhotoScreen(chore)
+                                    : null,
+                                borderRadius: BorderRadius.circular(12),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(12),
+                                  child: Row(
+                                    children: [
+                                      _buildSingleChoreThumbnail(chore),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              chore.name,
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w500,
+                                                decoration:
+                                                    chore.status ==
+                                                        ChoreStatus.done
+                                                    ? TextDecoration.lineThrough
+                                                    : null,
+                                                color:
+                                                    chore.status ==
+                                                        ChoreStatus.done
+                                                    ? Colors.grey[600]
+                                                    : null,
+                                              ),
                                             ),
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Row(
-                                            children: [
-                                              // Icon(
-                                              //   Icons.calendar_today,
-                                              //   size: 14,
-                                              //   color: Colors.grey[600],
-                                              // ),
-                                              // const SizedBox(width: 4),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              DateTimeFormatter.formatDateTime(
+                                                chore.dateTime,
+                                              ),
+                                              style: TextStyle(
+                                                fontSize: 13,
+                                                color: Colors.grey[600],
+                                              ),
+                                            ),
+                                            if (canAddPhoto) ...[
+                                              const SizedBox(height: 6),
                                               Text(
-                                                DateTimeFormatter.formatDateTime(
-                                                  chore.dateTime,
-                                                ),
+                                                'Tap to add photo',
                                                 style: TextStyle(
-                                                  fontSize: 13,
-                                                  color: Colors.grey[600],
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Theme.of(
+                                                    context,
+                                                  ).colorScheme.primary,
                                                 ),
                                               ),
                                             ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 6,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: chore.status == ChoreStatus.done
-                                            ? Colors.green[50]
-                                            : Colors.orange[50],
-                                        borderRadius: BorderRadius.circular(20),
-                                        border: Border.all(
-                                          color:
-                                              chore.status == ChoreStatus.done
-                                              ? Colors.green[200]!
-                                              : Colors.orange[200]!,
-                                          width: 1,
+                                          ],
                                         ),
                                       ),
-                                      child: DropdownButton<ChoreStatus>(
-                                        value: chore.status,
-                                        underline: const SizedBox(),
-                                        isDense: true,
-                                        icon: Icon(
-                                          Icons.arrow_drop_down,
-                                          size: 20,
+                                      const SizedBox(width: 8),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 6,
+                                        ),
+                                        decoration: BoxDecoration(
                                           color:
                                               chore.status == ChoreStatus.done
-                                              ? Colors.green[700]
-                                              : Colors.orange[700],
-                                        ),
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w600,
-                                          color:
-                                              chore.status == ChoreStatus.done
-                                              ? Colors.green[700]
-                                              : Colors.orange[700],
-                                        ),
-                                        borderRadius: BorderRadius.circular(12),
-                                        items: const [
-                                          DropdownMenuItem(
-                                            value: ChoreStatus.todo,
-                                            child: Text('Todo'),
+                                              ? Colors.green[50]
+                                              : Colors.orange[50],
+                                          borderRadius: BorderRadius.circular(
+                                            20,
                                           ),
-                                          DropdownMenuItem(
-                                            value: ChoreStatus.done,
-                                            child: Text('Done'),
+                                          border: Border.all(
+                                            color:
+                                                chore.status == ChoreStatus.done
+                                                ? Colors.green[200]!
+                                                : Colors.orange[200]!,
+                                            width: 1,
                                           ),
-                                        ],
-                                        onChanged: (ChoreStatus? newStatus) {
-                                          if (newStatus != null) {
-                                            final updatedChore =
-                                                SingleChoreEntity(
-                                                  createdBy: chore.createdBy,
-                                                  id: chore.id,
-                                                  name: chore.name,
-                                                  dateTime: chore.dateTime,
-                                                  status: newStatus,
-                                                  photoUrl: chore.photoUrl,
-                                                );
-                                            context.read<ChoresBloc>().add(
-                                              UpdateSingleChoresEvent(
-                                                chore: updatedChore,
-                                              ),
-                                            );
-                                          }
+                                        ),
+                                        child: DropdownButton<ChoreStatus>(
+                                          value: chore.status,
+                                          underline: const SizedBox(),
+                                          isDense: true,
+                                          icon: Icon(
+                                            Icons.arrow_drop_down,
+                                            size: 20,
+                                            color:
+                                                chore.status == ChoreStatus.done
+                                                ? Colors.green[700]
+                                                : Colors.orange[700],
+                                          ),
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w600,
+                                            color:
+                                                chore.status == ChoreStatus.done
+                                                ? Colors.green[700]
+                                                : Colors.orange[700],
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                          items: const [
+                                            DropdownMenuItem(
+                                              value: ChoreStatus.todo,
+                                              child: Text('Todo'),
+                                            ),
+                                            DropdownMenuItem(
+                                              value: ChoreStatus.done,
+                                              child: Text('Done'),
+                                            ),
+                                          ],
+                                          onChanged: (ChoreStatus? newStatus) {
+                                            if (newStatus != null) {
+                                              final updatedChore =
+                                                  SingleChoreEntity(
+                                                    createdBy: chore.createdBy,
+                                                    id: chore.id,
+                                                    name: chore.name,
+                                                    dateTime: chore.dateTime,
+                                                    status: newStatus,
+                                                    photoUrl: chore.photoUrl,
+                                                  );
+                                              context.read<ChoresBloc>().add(
+                                                UpdateSingleChoresEvent(
+                                                  chore: updatedChore,
+                                                ),
+                                              );
+                                            }
+                                          },
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.delete_outline),
+                                        onPressed: () {
+                                          context.read<ChoresBloc>().add(
+                                            DeleteSingleChoresEvent(
+                                              chore: chore,
+                                            ),
+                                          );
                                         },
                                       ),
-                                    ),
-                                    IconButton(
-                                      icon: const Icon(Icons.delete_outline),
-                                      onPressed: () {
-                                        context.read<ChoresBloc>().add(
-                                          DeleteSingleChoresEvent(chore: chore),
-                                        );
-                                      },
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             );
