@@ -79,15 +79,21 @@ class _ChoresListScreenState extends State<ChoresListScreen>
     );
   }
 
-  Future<void> _openAddPhotoScreen(SingleChoreEntity chore) async {
-    if (chore.photoUrl != null) {
+  Future<void> _openSingleChorePhotoFlow(SingleChoreEntity chore) async {
+    if (chore.photoUrl == null) {
+      await Navigator.push<SingleChoreEntity>(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AddChorePhotoScreen(chore: chore),
+        ),
+      );
       return;
     }
 
-    await Navigator.push<SingleChoreEntity>(
+    await Navigator.push<void>(
       context,
       MaterialPageRoute(
-        builder: (context) => AddChorePhotoScreen(chore: chore),
+        builder: (context) => _ChorePhotoViewerScreen(chore: chore),
       ),
     );
   }
@@ -219,14 +225,12 @@ class _ChoresListScreenState extends State<ChoresListScreen>
                           padding: const EdgeInsets.all(16),
                           itemBuilder: (context, index) {
                             final chore = state.singleChores[index];
-                            final canAddPhoto = chore.photoUrl == null;
+                            final hasPhoto = chore.photoUrl != null;
 
                             return Card(
                               margin: const EdgeInsets.only(bottom: 12),
                               child: InkWell(
-                                onTap: canAddPhoto
-                                    ? () => _openAddPhotoScreen(chore)
-                                    : null,
+                                onTap: () => _openSingleChorePhotoFlow(chore),
                                 borderRadius: BorderRadius.circular(12),
                                 child: Padding(
                                   padding: const EdgeInsets.all(12),
@@ -266,19 +270,19 @@ class _ChoresListScreenState extends State<ChoresListScreen>
                                                 color: Colors.grey[600],
                                               ),
                                             ),
-                                            if (canAddPhoto) ...[
-                                              const SizedBox(height: 6),
-                                              Text(
-                                                'Tap to add photo',
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Theme.of(
-                                                    context,
-                                                  ).colorScheme.primary,
-                                                ),
+                                            const SizedBox(height: 6),
+                                            Text(
+                                              hasPhoto
+                                                  ? 'Tap to view photo'
+                                                  : 'Tap to add photo',
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w600,
+                                                color: Theme.of(
+                                                  context,
+                                                ).colorScheme.primary,
                                               ),
-                                            ],
+                                            ),
                                           ],
                                         ),
                                       ),
@@ -605,6 +609,56 @@ class _ChoresListScreenState extends State<ChoresListScreen>
         },
         child: const Icon(Icons.add),
       ),
+    );
+  }
+}
+
+class _ChorePhotoViewerScreen extends StatelessWidget {
+  final SingleChoreEntity chore;
+
+  const _ChorePhotoViewerScreen({required this.chore});
+
+  @override
+  Widget build(BuildContext context) {
+    final photoUrl = chore.photoUrl;
+
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
+        title: Text(chore.name),
+      ),
+      body: photoUrl == null
+          ? const Center(
+              child: Text(
+                'No photo available',
+                style: TextStyle(color: Colors.white),
+              ),
+            )
+          : InteractiveViewer(
+              minScale: 0.8,
+              maxScale: 4,
+              child: Center(
+                child: Image.network(
+                  photoUrl,
+                  fit: BoxFit.contain,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) {
+                      return child;
+                    }
+
+                    return const Center(child: CircularProgressIndicator());
+                  },
+                  errorBuilder: (_, _, _) => const Center(
+                    child: Text(
+                      'Unable to load photo',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+              ),
+            ),
     );
   }
 }
