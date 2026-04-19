@@ -37,40 +37,38 @@ class _GroupChoresScreenState extends State<GroupChoresScreen> {
   }
 
   void _addChoreToGroup() async {
-    final result = await showDialog<String>(
+    final result = await showDialog<List<String>>(
       context: context,
       builder: (context) => const AddChoreToGroupDialog(),
     );
 
-    if (result != null && result.trim().isNotEmpty && mounted) {
-      _chores.add(
-        GroupChoreItem(
-          name: result.trim(),
-          status: ChoreStatus.todo,
-          id: Uuid().v4(),
-        ),
-      );
-      if (widget.id != null) {
-        context.read<ChoresBloc>().add(
-          UpdateGroupChoresEvent(
-            groupChore: GroupChoreEntity(
-              createdBy: FirebaseAuth.instance.currentUser?.uid ?? '',
-              id: widget.id ?? '1',
-              dateTime: widget.initialDateTime,
-              chores: _chores,
+    if (result != null && result.isNotEmpty && mounted) {
+      setState(() {
+        _chores.addAll(
+          result.map(
+            (name) => GroupChoreItem(
+              name: name,
+              status: ChoreStatus.todo,
+              id: Uuid().v4(),
             ),
           ),
         );
+      });
+
+      final groupChore = GroupChoreEntity(
+        createdBy: FirebaseAuth.instance.currentUser?.uid ?? '',
+        id: widget.id ?? '1',
+        dateTime: widget.initialDateTime,
+        chores: _chores,
+      );
+
+      if (widget.id != null) {
+        context.read<ChoresBloc>().add(
+          UpdateGroupChoresEvent(groupChore: groupChore),
+        );
       } else {
         context.read<ChoresBloc>().add(
-          AddGroupChoresEvent(
-            groupChore: GroupChoreEntity(
-              createdBy: FirebaseAuth.instance.currentUser?.uid ?? '',
-              id: widget.id ?? '1',
-              dateTime: widget.initialDateTime,
-              chores: _chores,
-            ),
-          ),
+          AddGroupChoresEvent(groupChore: groupChore),
         );
       }
       Navigator.of(context).pop();
@@ -341,6 +339,7 @@ class AddChoreToGroupDialog extends StatefulWidget {
 
 class _AddChoreToGroupDialogState extends State<AddChoreToGroupDialog> {
   final _nameController = TextEditingController();
+  final List<String> _pendingChores = [];
 
   @override
   void dispose() {
@@ -348,35 +347,134 @@ class _AddChoreToGroupDialogState extends State<AddChoreToGroupDialog> {
     super.dispose();
   }
 
+  void _queueChore() {
+    final trimmedName = _nameController.text.trim();
+    if (trimmedName.isEmpty) {
+      return;
+    }
+
+    setState(() {
+      _pendingChores.add(trimmedName);
+      _nameController.clear();
+    });
+  }
+
+  void _removeQueuedChore(int index) {
+    setState(() {
+      _pendingChores.removeAt(index);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Add Chore'),
-      content: TextField(
-        controller: _nameController,
-        decoration: const InputDecoration(
-          labelText: 'Chore Name',
-          border: OutlineInputBorder(),
+      title: const Text('Add Chores'),
+      content: SizedBox(
+        width: double.maxFinite,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextField(
+              controller: _nameController,
+              decoration: const InputDecoration(
+                labelText: 'Chore Name',
+                border: OutlineInputBorder(),
+              ),
+              autofocus: true,
+              textCapitalization: TextCapitalization.sentences,
+              onChanged: (_) => setState(() {}),
+              onSubmitted: (_) => _queueChore(),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Tap Add to queue each chore, then Save when you are done.',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Queued chores',
+              style: Theme.of(
+                context,
+              ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 220),
+              child: _pendingChores.isEmpty
+                  ? Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerLow,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.outlineVariant,
+                        ),
+                      ),
+                      child: Text(
+                        'No chores queued yet.',
+                        style: TextStyle(color: Colors.grey[600]),
+                      ),
+                    )
+                  : ListView.separated(
+                      shrinkWrap: true,
+                      itemCount: _pendingChores.length,
+                      separatorBuilder: (_, _) => const SizedBox(height: 8),
+                      itemBuilder: (context, index) {
+                        return Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 10,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.secondaryContainer,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.check_circle_outline,
+                                size: 20,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSecondaryContainer,
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(child: Text(_pendingChores[index])),
+                              IconButton(
+                                visualDensity: VisualDensity.compact,
+                                onPressed: () => _removeQueuedChore(index),
+                                icon: const Icon(Icons.close),
+                                tooltip: 'Remove',
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+            ),
+          ],
         ),
-        autofocus: true,
-        onSubmitted: (value) {
-          if (value.trim().isNotEmpty) {
-            Navigator.of(context).pop(value.trim());
-          }
-        },
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
           child: const Text('Cancel'),
         ),
-        FilledButton(
-          onPressed: () {
-            if (_nameController.text.trim().isNotEmpty) {
-              Navigator.of(context).pop(_nameController.text.trim());
-            }
-          },
+        OutlinedButton(
+          onPressed: _nameController.text.trim().isEmpty ? null : _queueChore,
           child: const Text('Add'),
+        ),
+        FilledButton(
+          onPressed: _pendingChores.isEmpty
+              ? null
+              : () => Navigator.of(context).pop(List.of(_pendingChores)),
+          child: const Text('Save'),
         ),
       ],
     );
